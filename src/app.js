@@ -1,22 +1,20 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import useWindowDimensions from "./customHooks";
+import { processDOM } from "./processDOM";
+import { processGrid } from "./processGrid";
 
 var computeNumber = 128
+var simulationSpeed = 600
 var threads = navigator.hardwareConcurrency
-var simulationRate = 1
+var worker = new Worker("worker.js")
 
-var workerGroup = []
-for(let i = 0; i < threads; i++) {
-  workerGroup.push(new Worker("worker.js"))
-}
-
-/*workerGroup[0].postMessage({
+/*worker.postMessage({
   "function": ((value) => {
     return value
   }).toString(),
   "args": "Hello World"
 })
-workerGroup[0].onmessage = (message) => {
+worker.onmessage = (message) => {
   console.log(message.data)
 }*/
 
@@ -25,8 +23,15 @@ for(let i = 0; i < computeNumber; i++) {
   num.push(i)
 }
 
+var grid = {}
+var objectList = {}
+for (let i = 0; i < computeNumber * computeNumber; i++) {
+  grid[i.toString()] = {}
+}
+
 function App() {
   var { height, width } = useWindowDimensions();
+  var idx = 0
 
   var appStyle = {
     height: Math.min(height * 0.99, width * 0.99),
@@ -46,30 +51,51 @@ function App() {
     cell.style.backgroundColor = "red"
   }
 
+  var onClick = (event) => {
+    event.preventDefault()
+    var cell = document.getElementById(event.target.id)
+    cell.style.backgroundColor = "red"
+  }
+
   var onMouseLeave = (event) => {
     event.preventDefault()
     var cell = document.getElementById(event.target.id)
-    cell.style.backgroundColor = "black"
+    cell.style.backgroundColor = grid[event.target.id].color
   }
 
-  var onClick = (event) => {
-    var cell = document.getElementById(event.target.id)
-    cell.style.backgroundColor = "green"
+  var gridProcessor = () => {
+    worker.postMessage({
+      "function": processGrid.toString(),
+      "args": {
+        "grid": grid,
+        "objectList": objectList
+      }
+    })
   }
 
-  var processCell = (cellId) => {
+  var initGrid = () => {
+    Object.keys(grid).map((key) => {
+      grid[key].color = "black"
+    })
+  }
 
+  var initObjectList = () => {
+    
   }
 
   useEffect(() => {
-    var intervalId = setInterval(() => {
-      console.log("hello")
-    }, 1000 / simulationRate)
-
-    return () => {
-      clearInterval(intervalId)
+    initGrid()
+    initObjectList()
+    gridProcessor()
+    worker.onmessage = (message) => {
+      grid = message.data.grid
+      objectList = message.data.objectList
+      processDOM(grid)
+      setTimeout(() => {
+        gridProcessor()
+      }, 60000 / simulationSpeed);
     }
-  })
+  }, [])
 
   return (
     <div>
@@ -83,8 +109,8 @@ function App() {
                 onTouchStart={onMouseEnter}
                 onTouchEnd={onMouseLeave}
                 onClick={onClick}
-                id={i.toString() + "." + j.toString()}
-                key={i.toString() + "." + j.toString()}
+                id={idx}
+                key={idx++}
                 data-bitprop={""}
                 style={cellStyle}
               ></div>
