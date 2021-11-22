@@ -1,4 +1,3 @@
-import { useState } from "react";
 import useWindowDimensions from "./customHooks";
 
 var computeNummber = 128
