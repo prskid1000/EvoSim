@@ -1,9 +1,9 @@
 import useWindowDimensions from "./customHooks";
 
-var computeNummber = 128
+var computeNumber = 128
 
 var num = []
-for(let i = 0; i < computeNummber; i++) {
+for(let i = 0; i < computeNumber; i++) {
   num.push(i)
 }
 
@@ -18,8 +18,8 @@ function App() {
 
   var cellStyle = {
     backgroundColor: "black",
-    height: Math.min(height * 0.99, width * 0.99) / computeNummber,
-    width: Math.min(height * 0.99, width * 0.99) / computeNummber,
+    height: Math.min(height * 0.99, width * 0.99) / computeNumber,
+    width: Math.min(height * 0.99, width * 0.99) / computeNumber,
   }
 
   var onMouseEnter = (event) => {
