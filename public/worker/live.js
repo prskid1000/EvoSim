@@ -321,7 +321,3 @@ var liveProperties = (color, geneSequence) => {
     }
     return properties
 }
-
-module.exports = {
-  genomeDecoder: genomeDecoder
-}
