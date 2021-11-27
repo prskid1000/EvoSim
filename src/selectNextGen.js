@@ -1,5 +1,5 @@
 module.exports = {
-    initGrid: (message) => {
+    selectNextGen: (message) => {
 
         var neuronCount = 6
         var geneSequence = "54321"
@@ -8,26 +8,49 @@ module.exports = {
         var grid = message.grid
         var objectList = message.objectList
         var gridLength = Object.keys(grid).length
+        var newObjectList = {}
 
         var distributeAtom = (type, count) => {
-            for (let i = 0; i < count; i++) {
+            for (let i = 0; i < count;) {
                 var currentKey = Math.floor(Math.random() * gridLength)
-                objectList[currentKey] = getProperties(type)
-                grid[currentKey].color = objectList[currentKey].color
-                grid[currentKey].type = type
+                if (grid[currentKey].type == "empty") { 
+                    newObjectList[currentKey] = getProperties(type)
+                    grid[currentKey].color = newObjectList[currentKey].color
+                    grid[currentKey].type = type
+                    i++
+                }
             }
         }
 
-        var selectLive = (count) => {
-            Object.keys(objectList).map((key) => {
+        var checkFitness = (key) => {
+            return parseInt(key) % 2 == 0 ? true : false
+        }
 
+        var selectLive = (count) => {
+            var selected = []
+            var idx = 0
+
+            Object.keys(objectList).map((key) => {
+                if(grid[key].type == "live") {
+                    console.log("hi")
+                    if (checkFitness(key) == true) {
+                        if (selected == undefined) selected = [key]
+                        else selected.push(key)
+                    }
+                }
             })
+
+            console.log(selected)
             
-            for (let i = 0; i < count; i++) {
+            for (let i = 0; i < count;) {
                 var currentKey = Math.floor(Math.random() * gridLength)
-                objectList[currentKey] = getProperties("live", geneSequence)
-                grid[currentKey].color = objectList[currentKey].color
-                grid[currentKey].type = "live"
+                if(grid[currentKey].type == "empty") {
+                    console.log(objectList[selected[(idx++) % selected.length]])
+                    newObjectList[currentKey] = JSON.parse(JSON.stringify(objectList[selected[(idx++) % selected.length]]))
+                    grid[currentKey].color = newObjectList[currentKey].color
+                    grid[currentKey].type = "live"
+                    i++
+                }
             }
         }
 
@@ -50,7 +73,7 @@ module.exports = {
 
         return {
             "grid": grid,
-            "objectList": objectList,
+            "objectList": newObjectList,
             "statistic": statistic
         }
     }

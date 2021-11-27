@@ -4,6 +4,7 @@ import { initGrid } from "./initGrid";
 import { genomeDecoder } from "./live";
 import { processDOM } from "./processDOM";
 import { processGrid } from "./processGrid";
+import { selectNextGen } from "./selectNextGen";
 
 var computeNumber = 128
 var simulationSpeed = 6000
@@ -51,6 +52,27 @@ function App() {
     let: "0",
     zIndex: "999999",
     fontSize: "12px",
+  }
+
+  var nextGen = () => {
+    worker.postMessage({
+      "statement": selectNextGen.toString(),
+      "args": {
+        "grid": grid,
+        "objectList": objectList,
+        "statistic": statistic
+      }
+    })
+    worker.onmessage = (message) => {
+      grid = message.data.grid
+      objectList = message.data.objectList
+      console.log(objectList)
+      processDOM(grid)
+      statistic = message.data.statistic
+      setStateStatistic(statistic)
+      runState = true
+      simulate()
+    }
   }
 
   var simulate = () => {
@@ -109,6 +131,11 @@ function App() {
       }
       case "6": {
         runState = false
+        break
+      }
+      case "7": {
+        runState = false
+        nextGen()
         break
       }
     }

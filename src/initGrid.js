@@ -10,20 +10,26 @@ module.exports = {
         var gridLength = Object.keys(grid).length
 
         var distributeAtom = (type, count) => {
-            for (let i = 0; i < count; i++) {
+            for (let i = 0; i < count;) {
                 var currentKey = Math.floor(Math.random() * gridLength)
-                objectList[currentKey] = getProperties(type)
-                grid[currentKey].color = objectList[currentKey].color
-                grid[currentKey].type = type
+                if (grid[currentKey].type == "empty") {
+                    objectList[currentKey] = getProperties(type)
+                    grid[currentKey].color = objectList[currentKey].color
+                    grid[currentKey].type = type
+                    i++
+                }
             }
         }
 
         var distributeLive = (count) => {
-            for (let i = 0; i < count; i++) {
+            for (let i = 0; i < count;) {
                 var currentKey = Math.floor(Math.random() * gridLength)
-                objectList[currentKey] = getProperties("live", geneSequence)
-                grid[currentKey].color = objectList[currentKey].color
-                grid[currentKey].type = "live"
+                if (grid[currentKey].type == "empty") {
+                    objectList[currentKey] = getProperties("live", geneSequence)
+                    grid[currentKey].color = objectList[currentKey].color
+                    grid[currentKey].type = "live"
+                    i++
+                }
             }
 
         }
