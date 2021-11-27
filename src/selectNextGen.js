@@ -18,14 +18,17 @@ module.exports = {
             }
         }
 
-        var distributeLive = (count) => {
+        var selectLive = (count) => {
+            Object.keys(objectList).map((key) => {
+
+            })
+            
             for (let i = 0; i < count; i++) {
                 var currentKey = Math.floor(Math.random() * gridLength)
                 objectList[currentKey] = getProperties("live", geneSequence)
                 grid[currentKey].color = objectList[currentKey].color
                 grid[currentKey].type = "live"
             }
-
         }
 
         Object.keys(grid).map((key) => {
@@ -35,7 +38,7 @@ module.exports = {
 
         distributeAtom("oxygen", 20)
         distributeAtom("carbon", 20)
-        distributeLive(50)
+        selectLive(50)
 
         var statistic = {
             "liveCellCount": 50,
