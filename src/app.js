@@ -50,7 +50,7 @@ function App() {
     top: "0",
     let: "0",
     zIndex: "999999",
-    fontSize: "12px"
+    fontSize: "12px",
   }
 
   var simulate = () => {
@@ -120,8 +120,8 @@ function App() {
     var cell = document.getElementById(event.target.id)
     cell.style.backgroundColor = "red"
 
-    cellInfoPanel.current.style.top = (20 + cell.offsetTop).toString() + "px"
-    cellInfoPanel.current.style.left = (20 + cell.offsetLeft).toString() + "px"
+    cellInfoPanel.current.style.top = (10 + cell.offsetTop).toString() + "px"
+    cellInfoPanel.current.style.left = (10 + cell.offsetLeft).toString() + "px"
 
     if (objectList[event.target.id] != undefined) {
       if (grid[event.target.id].type == "live") {
@@ -131,8 +131,8 @@ function App() {
       }
     }
 
-    infoPanel.current.style.top = (20 + cell.offsetTop).toString() + "px"
-    infoPanel.current.style.left = (20 + cell.offsetLeft).toString() + "px"
+    infoPanel.current.style.top = (10 + cell.offsetTop).toString() + "px"
+    infoPanel.current.style.left = (10 + cell.offsetLeft).toString() + "px"
   }
 
   var onMouseLeave = (event) => {
