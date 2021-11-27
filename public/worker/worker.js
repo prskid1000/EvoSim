@@ -6,5 +6,5 @@ importScripts("atomProcessor.js")
 importScripts("emptyProcessor.js")
 importScripts("liveProcessor.js")
 self.onmessage = (message) => {
-    postMessage(eval(message.data.statement)(message.data.args))
+    postMessage(eval("(message)" + message.data.statement.substring(7))(message.data.args))
 }
