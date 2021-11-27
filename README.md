@@ -13,6 +13,16 @@
 - Type npm install in terminal
 - Type npm run in terminal
 
+## Key Control
+
+- Num Key 1 -> Show Info Panel
+- Num Key 2 -> Hide Info Panel
+- Num Key 3 -> Show Cell Info Panel
+- Num Key 4 -> Hide Cell Info Panel
+- Num Key 5 -> Start Simulation
+- Num Key 6 -> Stop Simulation
+- Num Key 7 -> Create and Start new generation
+
 ## Preview
 
 ![1](https://github.com/prskid1000/EvoSim/blob/main/Preview/1.png?raw=true)
