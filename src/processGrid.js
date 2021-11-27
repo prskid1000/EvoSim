@@ -1,9 +1,9 @@
 module.exports = {
-    processGrid: (message) => {
+    processGrid: (e) => {
 
-        var grid = message.grid
-        var objectList = message.objectList
-        var statistic = message.statistic
+        var grid = e.grid
+        var objectList = e.objectList
+        var statistic = e.statistic
 
         Object.keys(objectList).map((key) => {
             switch (grid[key].type) {
