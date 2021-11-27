@@ -55,7 +55,7 @@ function App() {
 
   var simulate = () => {
     worker.postMessage({
-      "function": processGrid.toString(),
+      "statement": processGrid.toString(),
       "args": {
         "grid": grid,
         "objectList": objectList,
@@ -71,7 +71,7 @@ function App() {
       if (runState == true) {
         setTimeout(() => {
           worker.postMessage({
-            "function": processGrid.toString(),
+            "statement": processGrid.toString(),
             "args": {
               "grid": grid,
               "objectList": objectList,
@@ -147,7 +147,7 @@ function App() {
     cellInfoPanel.current.hidden = true
 
     worker.postMessage({
-      "function": initGrid.toString(),
+      "statement": initGrid.toString(),
       "args": {
         "grid": grid,
         "objectList": objectList
