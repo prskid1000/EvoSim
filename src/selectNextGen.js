@@ -31,8 +31,7 @@ module.exports = {
             var idx = 0
 
             Object.keys(objectList).map((key) => {
-                if(grid[key].type == "live") {
-                    console.log("hi")
+                if(objectList[key].type == "live") {
                     if (checkFitness(key) == true) {
                         if (selected == undefined) selected = [key]
                         else selected.push(key)
@@ -40,12 +39,9 @@ module.exports = {
                 }
             })
 
-            console.log(selected)
-            
             for (let i = 0; i < count;) {
                 var currentKey = Math.floor(Math.random() * gridLength)
                 if(grid[currentKey].type == "empty") {
-                    console.log(objectList[selected[(idx++) % selected.length]])
                     newObjectList[currentKey] = JSON.parse(JSON.stringify(objectList[selected[(idx++) % selected.length]]))
                     grid[currentKey].color = newObjectList[currentKey].color
                     grid[currentKey].type = "live"

@@ -66,7 +66,6 @@ function App() {
     worker.onmessage = (message) => {
       grid = message.data.grid
       objectList = message.data.objectList
-      console.log(objectList)
       processDOM(grid)
       statistic = message.data.statistic
       setStateStatistic(statistic)
