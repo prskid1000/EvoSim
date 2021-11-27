@@ -9,6 +9,7 @@
 - Fork the repository.
 - Clone it to your machine.
 - Open the cloned directory
+- Install Nodejs
 - Type npm install in terminal
 - Type npm run in terminal
 
