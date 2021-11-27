@@ -9,6 +9,7 @@ var computeNumber = 128
 var simulationSpeed = 6000
 var threads = navigator.hardwareConcurrency
 var worker = new Worker("worker/worker.js")
+var runState = false
 
 var num = []
 for(let i = 0; i < computeNumber; i++) {
@@ -27,7 +28,6 @@ function App() {
   var idx = 0
   var infoPanel = useRef()
   var cellInfoPanel = useRef()
-  var infoBoard = useRef()
   var [stateStatistic, setStateStatistic] = useState()
   var [cellInfo, setCellInfo] = useState()
 
@@ -53,17 +53,76 @@ function App() {
     fontSize: "12px"
   }
 
+  var simulate = () => {
+    worker.postMessage({
+      "function": processGrid.toString(),
+      "args": {
+        "grid": grid,
+        "objectList": objectList,
+        "statistic": statistic
+      }
+    })
+    worker.onmessage = (message) => {
+      grid = message.data.grid
+      objectList = message.data.objectList
+      processDOM(grid)
+      statistic = message.data.statistic
+      setStateStatistic(statistic)
+      if (runState == true) {
+        setTimeout(() => {
+          worker.postMessage({
+            "function": processGrid.toString(),
+            "args": {
+              "grid": grid,
+              "objectList": objectList,
+              "statistic": statistic
+            }
+          })
+        }, 60000 / simulationSpeed);
+      }
+    }
+  }
+
+  var onKeyDown = (event) => {
+
+    switch(event.key) {
+      case "1": {
+        infoPanel.current.hidden = false
+        break
+      }
+       case "2": {
+        infoPanel.current.hidden = true
+        break
+      }
+      case "3": {
+        cellInfoPanel.current.hidden = false
+        break
+      }
+      case "4": {
+        cellInfoPanel.current.hidden = true
+        break
+      }
+      case "5": {
+        runState = true
+        simulate()
+        break
+      }
+      case "6": {
+        runState = false
+        break
+      }
+    }
+  }
+
   var onMouseEnterOrClick = (event) => {
     event.preventDefault()
+
     var cell = document.getElementById(event.target.id)
     cell.style.backgroundColor = "red"
 
-    infoBoard.current.style.top = (10 + cell.offsetTop).toString() + "px"
-    infoBoard.current.style.left = (20 + cell.offsetLeft).toString() + "px"
-
     cellInfoPanel.current.style.top = (20 + cell.offsetTop).toString() + "px"
     cellInfoPanel.current.style.left = (20 + cell.offsetLeft).toString() + "px"
-    cellInfoPanel.current.hidden = true
+
     if (objectList[event.target.id] != undefined) {
       if (grid[event.target.id].type == "live") {
         setCellInfo(JSON.parse(JSON.stringify(genomeDecoder(objectList[event.target.id].genome))))
@@ -74,7 +133,6 @@ function App() {
 
     infoPanel.current.style.top = (20 + cell.offsetTop).toString() + "px"
     infoPanel.current.style.left = (20 + cell.offsetLeft).toString() + "px"
-    infoPanel.current.hidden = true
   }
 
   var onMouseLeave = (event) => {
@@ -84,6 +142,9 @@ function App() {
   }
 
   useEffect(() => {
+
+    infoPanel.current.hidden = true
+    cellInfoPanel.current.hidden = true
 
     worker.postMessage({
       "function": initGrid.toString(),
@@ -99,17 +160,8 @@ function App() {
       processDOM(grid)
       statistic = message.data.statistic
       setStateStatistic(statistic)
-      setTimeout(() => {
-        worker.postMessage({
-        "function": processGrid.toString(),
-        "args": {
-          "grid": grid,
-          "objectList": objectList,
-          "statistic": statistic
-        }
-      })
-      }, 60000 / simulationSpeed);
     }
+
   }, [])
 
   return (
@@ -124,6 +176,8 @@ function App() {
                 onTouchStart={onMouseEnterOrClick}
                 onTouchEnd={onMouseLeave}
                 onClick={onMouseEnterOrClick}
+                onKeyDown={onKeyDown}
+                tabIndex={-1}
                 id={idx}
                 key={idx++}
                 data-bitprop={""}
@@ -132,10 +186,6 @@ function App() {
             ))}
           </div>
         ))}
-      </div>
-      <div ref={infoBoard} style={infoPanelStyle} className="row">
-        <i className="col" onMouseEnter={(event) => infoPanel.current.hidden = true} onMouseLeave={(event) => infoPanel.current.hidden = false} className="fas fa-info-circle"></i>
-        <i className="col" onMouseEnter={(event) => cellInfoPanel.current.hidden = true} onMouseLeave={(event) => cellInfoPanel.current.hidden = false} className="fas fa-info-circle"></i>
       </div>
       <div ref={infoPanel} style={infoPanelStyle}>
         {stateStatistic && Object.keys(stateStatistic).map((key) => (
