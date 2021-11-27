@@ -4,11 +4,20 @@
 
 ## A Evolution Simulator
 
-
 ## Getting started
 
 - Fork the repository.
 - Clone it to your machine.
+- Open the cloned directory
+- Type npm install in terminal
+- Type npm run in terminal
+
+## Preview
+
+![1](https://github.com/prskid1000/EvoSim/blob/master/Preview/1.png?raw=true)
+![1](https://github.com/prskid1000/EvoSim/blob/master/Preview/2.png?raw=true)
+![1](https://github.com/prskid1000/EvoSim/blob/master/Preview/3.png?raw=true)
+![1](https://github.com/prskid1000/EvoSim/blob/master/Preview/4.png?raw=true)
 
 ## Code of Conduct
 
