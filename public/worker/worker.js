@@ -6,6 +6,6 @@ importScripts("atomProcessor.js")
 importScripts("emptyProcessor.js")
 importScripts("liveProcessor.js")
 self.onmessage = (message) => {
-    var simulate = new Function("message", message.data.statement.substring(10))
+    var simulate = new Function("message", "console.log('hi')")
     postMessage(simulate(message.data.args))
 }
