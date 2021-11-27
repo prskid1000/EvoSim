@@ -14,10 +14,10 @@
 
 ## Preview
 
-![1](https://github.com/prskid1000/EvoSim/blob/master/Preview/1.png?raw=true)
-![1](https://github.com/prskid1000/EvoSim/blob/master/Preview/2.png?raw=true)
-![1](https://github.com/prskid1000/EvoSim/blob/master/Preview/3.png?raw=true)
-![1](https://github.com/prskid1000/EvoSim/blob/master/Preview/4.png?raw=true)
+![1](https://github.com/prskid1000/EvoSim/blob/main/Preview/1.png?raw=true)
+![1](https://github.com/prskid1000/EvoSim/blob/main/Preview/2.png?raw=true)
+![1](https://github.com/prskid1000/EvoSim/blob/main/Preview/3.png?raw=true)
+![1](https://github.com/prskid1000/EvoSim/blob/main/Preview/4.png?raw=true)
 
 ## Code of Conduct
 
