@@ -1,8 +1,8 @@
 module.exports = {
-    processDOM: (e) => {
-        Object.keys(e).map((key) => {
+    processDOM: (grid) => {
+        Object.keys(grid).map((key) => {
             var cell = document.getElementById(key)
-            cell.style.backgroundColor = e[key].color
+            cell.style.backgroundColor = grid[key].color
         })
     }
 }

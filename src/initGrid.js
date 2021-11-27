@@ -1,12 +1,12 @@
 module.exports = {
-    initGrid: (e) => {
+    initGrid: (message) => {
 
         var neuronCount = 6
         var geneSequence = "54321"
         for (let i = 0; i < neuronCount; i++) geneSequence += "0"
 
-        var grid = e.grid
-        var objectList = e.objectList
+        var grid = message.grid
+        var objectList = message.objectList
         var gridLength = Object.keys(grid).length
 
         var distributeAtom = (type, count) => {
