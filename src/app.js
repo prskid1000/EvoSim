@@ -7,9 +7,7 @@ import { processGrid } from "./processGrid";
 import { selectNextGen } from "./selectNextGen";
 
 var computeNumber = 128
-var simulationSpeed = 6000
-var threads = navigator.hardwareConcurrency
-var worker = new Worker("worker/worker.js")
+var simulationSpeed = 600
 var runState = false
 
 var num = []
@@ -55,53 +53,22 @@ function App() {
   }
 
   var nextGen = () => {
-    worker.postMessage({
-      "statement": selectNextGen.toString(),
-      "args": {
-        "grid": grid,
-        "objectList": objectList,
-        "statistic": statistic
-      }
-    })
-    worker.onmessage = (message) => {
-      grid = message.data.grid
-      objectList = message.data.objectList
-      processDOM(grid)
-      statistic = message.data.statistic
-      setStateStatistic(statistic)
-      runState = true
-      simulate()
-    }
+    console.log(objectList)
+    objectList = selectNextGen(grid, objectList, statistic)
+    processDOM(grid)
   }
 
   var simulate = () => {
-    worker.postMessage({
-      "statement": processGrid.toString(),
-      "args": {
-        "grid": grid,
-        "objectList": objectList,
-        "statistic": statistic
-      }
-    })
-    worker.onmessage = (message) => {
-      grid = message.data.grid
-      objectList = message.data.objectList
-      processDOM(grid)
-      statistic = message.data.statistic
-      setStateStatistic(statistic)
-      if (runState == true) {
-        setTimeout(() => {
-          worker.postMessage({
-            "statement": processGrid.toString(),
-            "args": {
-              "grid": grid,
-              "objectList": objectList,
-              "statistic": statistic
-            }
-          })
-        }, 60000 / simulationSpeed);
-      }
+    processGrid(grid, objectList, statistic)
+    processDOM(grid)
+    setStateStatistic(statistic)
+
+    if (runState == true) {
+      setTimeout(() => {
+        simulate()
+      }, 60000 / simulationSpeed);
     }
+   
   }
 
   var onKeyDown = (event) => {
@@ -172,21 +139,9 @@ function App() {
     infoPanel.current.hidden = true
     cellInfoPanel.current.hidden = true
 
-    worker.postMessage({
-      "statement": initGrid.toString(),
-      "args": {
-        "grid": grid,
-        "objectList": objectList
-      }
-    })
-
-    worker.onmessage = (message) => {
-      grid = message.data.grid
-      objectList = message.data.objectList
-      processDOM(grid)
-      statistic = message.data.statistic
-      setStateStatistic(statistic)
-    }
+    initGrid(grid, objectList, statistic)
+    processDOM(grid)
+    setStateStatistic(statistic)
 
   }, [])
 

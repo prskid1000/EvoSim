@@ -185,3 +185,17 @@ var moveCell = (grid, objectList, currentKey, futureKey) => {
         delete objectList[currentKey]
     }
 }
+
+module.exports = {
+    moveCell: moveCell,
+    getRightArea: getRightArea,
+    getBottomArea: getBottomArea,
+    getTopArea: getTopArea,
+    getLeftArea: getLeftArea,
+    getSenseArea: getSenseArea,
+    getFilteredNeighbour: getFilteredNeighbour,
+    getNeighbourArray: getNeighbourArray,
+    getNeighbourKV: getNeighbourKV,
+    computeCircularColumn: computeCircularColumn,
+    computeCircularRow: computeCircularRow
+}

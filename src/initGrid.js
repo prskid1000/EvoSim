@@ -1,12 +1,12 @@
+const { getProperties } = require("./cellType")
+
 module.exports = {
-    initGrid: (message) => {
+    initGrid: (grid, objectList, statistic) => {
 
         var neuronCount = 6
         var geneSequence = "54321"
         for (let i = 0; i < neuronCount; i++) geneSequence += "0"
 
-        var grid = message.grid
-        var objectList = message.objectList
         var gridLength = Object.keys(grid).length
 
         var distributeAtom = (type, count) => {
@@ -43,18 +43,11 @@ module.exports = {
         distributeAtom("carbon", 20)
         distributeLive(50)
 
-        var statistic = {
-            "liveCellCount": 50,
-            "deathCount": 0,
-            "replicationCount": 0,
-            "oxygen": 20,
-            "carbon": 20
-        }
+        statistic["liveCellCount"] = 50
+        statistic["deathCount"] = 0
+        statistic["replicationCount"] = 0
+        statistic["oxygen"] = 20
+        statistic["carbon"] = 20
 
-        return {
-            "grid": grid,
-            "objectList": objectList,
-            "statistic": statistic
-        }
     }
 }

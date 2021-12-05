@@ -1,9 +1,9 @@
-module.exports = {
-    processGrid: (message) => {
+const { atomProcessor } = require("./atomProcessor");
+const { emptyProcessor } = require("./emptyProcessor");
+const { liveProcessor } = require("./liveProcessor");
 
-        var grid = message.grid
-        var objectList = message.objectList
-        var statistic = message.statistic
+module.exports = {
+    processGrid: (grid, objectList, statistic) => {
 
         Object.keys(objectList).map((key) => {
             switch (grid[key].type) {
@@ -21,11 +21,5 @@ module.exports = {
                     break
             }
         })
-
-        return {
-            "grid": grid,
-            "objectList": objectList,
-            "statistic": statistic
-        }
     }
 }

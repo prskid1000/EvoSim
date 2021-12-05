@@ -1,5 +1,5 @@
-importScripts("atom.js")
-importScripts("live.js")
+const { groundProperties } = require("./atom")
+const { liveProperties } = require("./live")
 
 var cellTypes = [
     "empty",
@@ -52,5 +52,9 @@ var getProperties = (type, geneSequence) => {
             return JSON.parse(JSON.stringify(cellProperties[type]))
         }
     }
+}
+
+module.exports = {
+    getProperties: getProperties,
 }
 

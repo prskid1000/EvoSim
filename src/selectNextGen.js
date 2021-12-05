@@ -1,19 +1,19 @@
+const { getProperties } = require("./cellType")
+
 module.exports = {
-    selectNextGen: (message) => {
+    selectNextGen: (grid, objectList, statistic) => {
 
         var neuronCount = 6
         var geneSequence = "54321"
         for (let i = 0; i < neuronCount; i++) geneSequence += "0"
 
-        var grid = message.grid
-        var objectList = message.objectList
         var gridLength = Object.keys(grid).length
         var newObjectList = {}
 
         var distributeAtom = (type, count) => {
             for (let i = 0; i < count;) {
                 var currentKey = Math.floor(Math.random() * gridLength)
-                if (grid[currentKey].type == "empty") { 
+                if (grid[currentKey].type == "empty") {
                     newObjectList[currentKey] = getProperties(type)
                     grid[currentKey].color = newObjectList[currentKey].color
                     grid[currentKey].type = type
@@ -31,7 +31,7 @@ module.exports = {
             var idx = 0
 
             Object.keys(objectList).map((key) => {
-                if(objectList[key].type == "live") {
+                if (objectList[key].type == "live") {
                     if (checkFitness(key) == true) {
                         if (selected == undefined) selected = [key]
                         else selected.push(key)
@@ -41,7 +41,7 @@ module.exports = {
 
             for (let i = 0; i < count;) {
                 var currentKey = Math.floor(Math.random() * gridLength)
-                if(grid[currentKey].type == "empty") {
+                if (grid[currentKey].type == "empty") {
                     newObjectList[currentKey] = JSON.parse(JSON.stringify(objectList[selected[(idx++) % selected.length]]))
                     grid[currentKey].color = newObjectList[currentKey].color
                     grid[currentKey].type = "live"
@@ -59,18 +59,12 @@ module.exports = {
         distributeAtom("carbon", 20)
         selectLive(50)
 
-        var statistic = {
-            "liveCellCount": 50,
-            "deathCount": 0,
-            "replicationCount": 0,
-            "oxygen": 20,
-            "carbon": 20
-        }
+        statistic["liveCellCount"] = 50
+        statistic["deathCount"] = 0
+        statistic["replicationCount"] = 0
+        statistic["oxygen"] = 20
+        statistic["carbon"] = 20
 
-        return {
-            "grid": grid,
-            "objectList": newObjectList,
-            "statistic": statistic
-        }
+        return newObjectList
     }
 }

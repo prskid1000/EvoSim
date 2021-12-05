@@ -1,4 +1,10 @@
-importScripts("cellUtility.js")
+const { getProperties } = require("./cellType")
+const { computeCircularRow, getNeighbourArray, moveCell, getTopArea, getBottomArea, getLeftArea, getRightArea, getFilteredNeighbour } = require("./cellUtility")
+const { genomeMutator, genomeDecoder } = require("./live")
+
+var computeNumber = 128
+var borderTopLeft = 0
+var borderBottomLeft = computeNumber * computeNumber - computeNumber
 var currentLiveCell = {}
 
 var processNeuron = (gene) => {
@@ -258,4 +264,8 @@ var liveProcessor = (grid, objectList, statistic, key) => {
         }
     }
     processMovement(grid, objectList)
+}
+
+module.exports = {
+    liveProcessor: liveProcessor
 }
