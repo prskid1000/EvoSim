@@ -3,9 +3,11 @@ const { getProperties } = require("./cellType")
 module.exports = {
     selectNextGen: (grid, objectList, statistic) => {
 
-        var neuronCount = 6
-        var geneSequence = "54321"
-        for (let i = 0; i < neuronCount; i++) geneSequence += "0"
+        var initList = {
+            "oxygen": 20,
+            "carbon": 20,
+            "live": 100
+        }
 
         var gridLength = Object.keys(grid).length
         var newObjectList = {}
@@ -55,15 +57,22 @@ module.exports = {
                 grid[key].type = "empty"
         })
 
-        distributeAtom("oxygen", 20)
-        distributeAtom("carbon", 20)
-        selectLive(50)
+        Object.keys(initList).map((key) => {
+            switch (key) {
+                case "live": {
+                    selectLive(initList[key])
+                    statistic["liveCellCount"] = initList[key]
+                    statistic["deathCount"] = 0
+                    statistic["replicationCount"] = 0
+                } break
+                default: {
+                    distributeAtom(key, initList[key])
+                    statistic[key] = initList[key]
+                }
+            }
+            
+        })
 
-        statistic["liveCellCount"] = 50
-        statistic["deathCount"] = 0
-        statistic["replicationCount"] = 0
-        statistic["oxygen"] = 20
-        statistic["carbon"] = 20
 
         return newObjectList
     }
