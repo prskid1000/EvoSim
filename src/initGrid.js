@@ -9,10 +9,7 @@ module.exports = {
             "live": 100
         }
 
-        var neuronCount = 6
-        var geneSequence = "54321"
-        for (let i = 0; i < neuronCount; i++) geneSequence += "0"
-
+        var geneSequence = process.env.REACT_APP_GENE_SEQUENCE
         var gridLength = Object.keys(grid).length
 
         var distributeAtom = (type, count) => {

@@ -9,6 +9,12 @@ module.exports = {
         var objectList = message.objectList
         var gridLength = Object.keys(grid).length
 
+        var initList = {
+            "oxygen": 20,
+            "carbon": 20,
+            "live": 100
+        }
+
         var distributeAtom = (type, count) => {
             for (let i = 0; i < count;) {
                 var currentKey = Math.floor(Math.random() * gridLength)
@@ -39,17 +45,20 @@ module.exports = {
                 grid[key].type = "empty"
         })
 
-        distributeAtom("oxygen", 20)
-        distributeAtom("carbon", 20)
-        distributeLive(50)
-
-        var statistic = {
-            "liveCellCount": 50,
-            "deathCount": 0,
-            "replicationCount": 0,
-            "oxygen": 20,
-            "carbon": 20
-        }
+        Object.keys(initList).map((key) => {
+            switch (key) {
+                case "live": {
+                    distributeLive(initList[key])
+                    statistic["liveCellCount"] = initList[key]
+                    statistic["deathCount"] = 0
+                    statistic["replicationCount"] = 0
+                } break
+                default: {
+                    distributeAtom(key, initList[key])
+                    statistic[key] = initList[key]
+                }
+            }
+        })
 
         return {
             "grid": grid,

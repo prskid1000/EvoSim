@@ -6,8 +6,8 @@ import { processDOM } from "./processDOM";
 import { processGrid } from "./processGrid";
 import { selectNextGen } from "./selectNextGen";
 
-var computeNumber = 128
-var simulationSpeed = 600
+var computeNumber = parseInt(process.env.REACT_APP_COMPUTE_NUMBER)
+var simulationSpeed = process.env.REACT_APP_SIMULATION_SPEED
 var runState = false
 
 var num = []
@@ -53,7 +53,6 @@ function App() {
   }
 
   var nextGen = () => {
-    console.log(objectList)
     objectList = selectNextGen(grid, objectList, statistic)
     processDOM(grid)
   }

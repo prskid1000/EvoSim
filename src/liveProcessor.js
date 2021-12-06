@@ -2,7 +2,7 @@ const { getProperties } = require("./cellType")
 const { computeCircularRow, getNeighbourArray, moveCell, getTopArea, getBottomArea, getLeftArea, getRightArea, getFilteredNeighbour } = require("./cellUtility")
 const { genomeMutator, genomeDecoder } = require("./live")
 
-var computeNumber = 128
+var computeNumber = parseInt(process.env.REACT_APP_COMPUTE_NUMBER)
 var borderTopLeft = 0
 var borderBottomLeft = computeNumber * computeNumber - computeNumber
 var currentLiveCell = {}

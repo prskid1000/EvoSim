@@ -1,4 +1,4 @@
-var computeNumber = 128
+var computeNumber = parseInt(process.env.REACT_APP_COMPUTE_NUMBER)
 var borderTopLeft = 0
 var borderBottomLeft = computeNumber * computeNumber - computeNumber
 
