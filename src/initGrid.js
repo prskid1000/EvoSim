@@ -1,13 +1,7 @@
 const { getProperties } = require("./cellType")
 
 module.exports = {
-    initGrid: (grid, objectList, statistic) => {
-
-        var initList = {
-            "oxygen": 20,
-            "carbon": 20,
-            "live": 100
-        }
+    initGrid: (grid, objectList, statistic, initList) => {
 
         var geneSequence = process.env.REACT_APP_GENE_SEQUENCE
         var gridLength = Object.keys(grid).length

@@ -56,5 +56,6 @@ var getProperties = (type, geneSequence) => {
 
 module.exports = {
     getProperties: getProperties,
+    cellTypes: cellTypes
 }
 

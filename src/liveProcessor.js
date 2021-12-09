@@ -35,33 +35,22 @@ var processNeuron = (gene) => {
         case "distanceFromRight": {
             value = (computeNumber - (parseInt(currentLiveCell.key) % computeNumber)) * (1.0 / computeNumber)
         } break
-        case "oxygenGradientLeftToRight": {
-            value = computeLeftToRightGradient("oxygen")
-        } break
-        case "oxygenGradientTopToBottom": {
-            value = computeTopToBottomGradient("oxygen")
-        } break
-        case "oxygenNeighbour": {
-            value = currentLiveCell.neighbours["oxygen"] == undefined ? 0 : currentLiveCell.neighbours["oxygen"].length
-        } break
-        case "carbonGradientLeftToRight": {
-            value = computeLeftToRightGradient("carbon")
-        } break
-        case "carbonGradientTopToBottom": {
-            value = computeTopToBottomGradient("carbon")
-        } break
-        case "carbonNeighbour": {
-            value = currentLiveCell.neighbours["oxygen"] == undefined ? 0 : currentLiveCell.neighbours["oxygen"].length
-        } break
-        case "populationGradientLeftToRight": {
-            value = computeLeftToRightGradient("live")
-        } break
-        case "populationGradientTopToBottom": {
-            value = computeTopToBottomGradient("live")
-        } break
-        case "populationNeighbour": {
-            value = currentLiveCell.neighbours["oxygen"] == undefined ? 0 : currentLiveCell.neighbours["oxygen"].length
-        } break
+        default: {
+            var idx = gene.sensoryNeuron.indexOf(".")
+            var type = gene.sensoryNeuron.substring(0, idx)
+            var senseType = gene.sensoryNeuron.substring(idx + 1)
+            switch(senseType) {
+                case "GradientLeftToRight": {
+                    value = computeLeftToRightGradient(type)
+                }break
+                case "GradientTopToBottom": {
+                    value = computeTopToBottomGradient(type)
+                } break
+                case "Neighbour": {
+                    value = currentLiveCell.neighbours[type] == undefined ? 0 : currentLiveCell.neighbours[type].length
+                }break 
+            }
+        }
     }
     
     currentLiveCell.actionPoints[gene.motorNeuron] += value * gene.synapseWeight
@@ -205,7 +194,7 @@ var processMovement = (grid, objectList) => {
         currentLiveCell.key = neighbour[3]
     }
 
-    if (moved == false && currentLiveCell.actionPoints.moveRandom > 0) {
+    if (moved == false && Math.tanh(currentLiveCell.actionPoints.moveRandom) > 0) {
         var neighbourId = Math.floor(Math.random() * 7)
         var neighbour = getNeighbourArray(currentLiveCell.key)
         var target = neighbour[neighbourId]
