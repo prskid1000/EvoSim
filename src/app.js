@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import cellType, { cellTypes, getProperties } from "./cellType";
+import { cellTypes, getProperties } from "./cellType";
 import { computeCircularColumn, computeCircularRow, moveCell } from "./cellUtility";
 import useWindowDimensions from "./customHooks";
 import { initGrid } from "./initGrid";
@@ -26,9 +26,7 @@ for (let i = 0; i < computeNumber * computeNumber; i++) {
 }
 
 var initList = {
-  "oxygen": 0,
-  "carbon": 0,
-  "live": 0
+  //Init List GUI
 }
 
 var selectTarget = 0
