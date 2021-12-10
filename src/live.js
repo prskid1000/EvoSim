@@ -317,7 +317,24 @@ var liveProperties = (color, geneSequence) => {
     var properties = {
         "type": "live",
         "color": color,
-        "genome": genomeBuilder(geneSequence)
+        "replicationCount": 0,
+        "mutationCount": 0,
+        "digestionCount": 0,
+        "distTravelUp": 0,
+        "distTravelDown": 0,
+        "distTravelLeft": 0,
+        "distTravelRight": 0,
+        "distTravelRand": 0,
+        "deathSignal": [],
+        "replicationSignal": [],
+        "mutationSignal": [],
+        "moveUpSignal": [],
+        "moveDownSignal": [],
+        "moveLeftSignal": [],
+        "moveRightSignal":  [],
+        "moveRandomSignal": [],
+        "digestionSignal": [],
+        "genome": genomeBuilder(geneSequence),
     }
     return properties
 }

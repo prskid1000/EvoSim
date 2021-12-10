@@ -59,7 +59,10 @@ var processNeuron = (gene) => {
 var processDeath = (statistic, grid, objectList, gene) => {
     var flag = false
     var factorCount = currentLiveCell.neighbours[gene.factor]
-    if(factorCount == undefined) return 
+    if (factorCount == undefined) {
+        objectList[currentLiveCell.key].deathSignal.push(0)
+        return
+    }
     else factorCount = factorCount.length
 
     if (gene.comparator == "equal") {
@@ -77,12 +80,17 @@ var processDeath = (statistic, grid, objectList, gene) => {
         statistic.liveCellCount--
         statistic.deathCount++
     }
+    objectList[currentLiveCell.key].deathSignal.push(factorCount)
+    
 }
 
 var processReplication = (statistic, grid, objectList, gene) => {
     var flag = false
     var factorCount = currentLiveCell.neighbours[gene.factor]
-    if (factorCount == undefined) return
+    if (factorCount == undefined) {
+        objectList[currentLiveCell.key].replicationSignal.push(0)
+        return
+    }
     else factorCount = factorCount.length
 
     if (gene.comparator == "equal") {
@@ -97,6 +105,7 @@ var processReplication = (statistic, grid, objectList, gene) => {
         var duplicate = currentLiveCell.neighbours[gene.factor][0]
         if (duplicate != undefined) {
             objectList[duplicate] = JSON.parse(JSON.stringify(objectList[currentLiveCell.key]))
+            objectList[currentLiveCell.key].replicationCount++
             grid[duplicate].color = objectList[duplicate].color
             grid[duplicate].type = "live"
         
@@ -109,13 +118,17 @@ var processReplication = (statistic, grid, objectList, gene) => {
             }
         }
     }
+    objectList[currentLiveCell.key].replicationSignal.push(factorCount)
 
 }
 
-var processMutation = (grid, objectList, gene) => {
+var processMutation = (objectList, gene) => {
     var flag = false
     var factorCount = currentLiveCell.neighbours[gene.factor]
-    if (factorCount == undefined) return
+    if (factorCount == undefined) {
+        objectList[currentLiveCell.key].mutationSignal.push(0)
+        return
+    }
     else factorCount = factorCount.length
 
     if (gene.comparator == "equal") {
@@ -128,11 +141,13 @@ var processMutation = (grid, objectList, gene) => {
 
     if (flag == true) {
         objectList[currentLiveCell.key].genome = genomeMutator(objectList[currentLiveCell.key].genome)
+        objectList[currentLiveCell.key].mutationCount++
     }
+    objectList[currentLiveCell.key].mutationSignal.push(factorCount )
 }
 
 var processDigestion = (statistic, grid, objectList, gene) => {
-    if (Math.tanh(currentLiveCell.actionPoints.digest) > 1) {
+    if (Math.tanh(currentLiveCell.actionPoints.digest) >= 1) {
         var consume = currentLiveCell.neighbours[gene.consume]
         consume.map((key) => {
             objectList[key.toString()] = getProperties(gene.produce)
@@ -140,11 +155,15 @@ var processDigestion = (statistic, grid, objectList, gene) => {
             grid[key.toString()].type = gene.produce
             statistic[gene.consume]--
             statistic[gene.produce]++
+            objectList[currentLiveCell.key].digestionCount++
         })
-    }
+
+    } 
+    objectList[currentLiveCell.key].digestionSignal.push(currentLiveCell.actionPoints.digest)
 }
 
 var processMovement = (grid, objectList) => {
+
     var moveLeft = currentLiveCell.actionPoints.moveLeft
     var moveRight = currentLiveCell.actionPoints.moveRight
     var moveUp = currentLiveCell.actionPoints.moveUp
@@ -169,37 +188,49 @@ var processMovement = (grid, objectList) => {
     var moved = false
     var neighbour = getNeighbourArray(currentLiveCell.key)
 
-    if (Math.tanh(moveLeft) > 1) {
+    if (Math.tanh(moveLeft) >= 1) {
         moveCell(grid, objectList, currentLiveCell.key, neighbour[0])
         moved = true
         currentLiveCell.key = neighbour[0]
+        objectList[currentLiveCell.key].distTravelLeft++
     }
 
-    if (Math.tanh(moveRight) > 1) {
+    if (Math.tanh(moveRight) >= 1) {
         moveCell(grid, objectList, currentLiveCell.key, neighbour[1])
         moved = true
         currentLiveCell.key = neighbour[1]
+        objectList[currentLiveCell.key].distTravelRight++
     }
 
-    if (Math.tanh(moveUp) > 1) {
+    if (Math.tanh(moveUp) >= 1) {
         moveCell(grid, objectList, currentLiveCell.key, neighbour[2])
         delete objectList[currentLiveCell.key]
         moved = true
         currentLiveCell.key = neighbour[2]
+        objectList[currentLiveCell.key].distTravelUp++
     }
 
-    if (Math.tanh(moveDown) > 1) {
+    if (Math.tanh(moveDown) >= 1) {
         moveCell(grid, objectList, currentLiveCell.key, neighbour[3])
         moved = true
         currentLiveCell.key = neighbour[3]
+        objectList[currentLiveCell.key].distTravelDown++
     }
 
-    if (moved == false && Math.tanh(currentLiveCell.actionPoints.moveRandom) > 0) {
+    if (moved == false && Math.tanh(currentLiveCell.actionPoints.moveRandom) >= 1) {
         var neighbourId = Math.floor(Math.random() * 7)
         var neighbour = getNeighbourArray(currentLiveCell.key)
         var target = neighbour[neighbourId]
         moveCell(grid, objectList, currentLiveCell.key, target)
+        currentLiveCell.key = target
+        objectList[target].distTravelRand++
     }
+
+    objectList[currentLiveCell.key].moveUpSignal.push(moveUp)
+    objectList[currentLiveCell.key].moveDownSignal.push(moveDown)
+    objectList[currentLiveCell.key].moveLeftSignal.push(moveLeft)
+    objectList[currentLiveCell.key].moveRightSignal.push(moveRight)
+    objectList[currentLiveCell.key].moveRandomSignal.push(currentLiveCell.actionPoints.moveRandom)
 
 }
 
@@ -235,24 +266,23 @@ var liveProcessor = (grid, objectList, statistic, key) => {
     for (let i = 0; i < decodedGenome.length; i++) {
         switch(decodedGenome[i].type) {
             case "neuron": {
-                processNeuron(decodedGenome[i], parameter.senseArea)
+                if (objectList[currentLiveCell.key] != undefined) processNeuron( decodedGenome[i])
             }break
             case "death": {
-                processDeath(statistic, grid, objectList, decodedGenome[i])
-                if (objectList[currentLiveCell.key] == undefined) return
+                if (objectList[currentLiveCell.key] != undefined) processDeath(statistic, grid, objectList, decodedGenome[i])
             } break
             case "replication": {
-                processReplication(statistic, grid, objectList, decodedGenome[i])
+                if (objectList[currentLiveCell.key] != undefined) processReplication(statistic, grid, objectList, decodedGenome[i])
             } break
             case "mutation": {
-                processMutation(grid, objectList, decodedGenome[i])
+                if (objectList[currentLiveCell.key] != undefined) processMutation(objectList, decodedGenome[i])
             } break
             case "digestion": {
-                processDigestion(statistic, grid, objectList, decodedGenome[i])
+                if (objectList[currentLiveCell.key] != undefined) processDigestion(statistic, grid, objectList, decodedGenome[i])
             } break
         }
     }
-    processMovement(grid, objectList)
+    if (objectList[currentLiveCell.key] != undefined) processMovement(grid, objectList)
 }
 
 module.exports = {

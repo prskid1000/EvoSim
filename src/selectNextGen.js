@@ -56,9 +56,10 @@ module.exports = {
             switch (key) {
                 case "live": {
                     selectLive(initList[key])
-                    statistic["liveCellCount"] = initList[key]
-                    statistic["deathCount"] = 0
-                    statistic["replicationCount"] = 0
+                    statistic[key] = initList[key]
+                    statistic["death"] = 0
+                    statistic["replication"] = 0
+                    statistic["mutation"] = 0
                 } break
                 default: {
                     distributeAtom(key, initList[key])

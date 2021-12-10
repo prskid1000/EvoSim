@@ -1,9 +1,8 @@
 const { getProperties } = require("./cellType")
 
 module.exports = {
-    initGrid: (grid, objectList, statistic, initList) => {
+    initGrid: (grid, objectList, statistic, initList, geneSequence) => {
 
-        var geneSequence = process.env.REACT_APP_GENE_SEQUENCE
         var gridLength = Object.keys(grid).length
 
         var distributeAtom = (type, count) => {
@@ -40,9 +39,10 @@ module.exports = {
             switch(key) {
                 case "live": {
                     distributeLive(initList[key])
-                    statistic["liveCellCount"] = initList[key]
-                    statistic["deathCount"] = 0
-                    statistic["replicationCount"] = 0
+                    statistic[key] = initList[key]
+                    statistic["death"] = 0
+                    statistic["replication"] = 0
+                    statistic["mutation"] = 0
                 }break
                 default: {
                     distributeAtom(key, initList[key])
