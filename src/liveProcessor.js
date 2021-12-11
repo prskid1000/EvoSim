@@ -245,6 +245,12 @@ var liveProcessor = (grid, objectList, statistic, key) => {
         bottomArea: getBottomArea(grid, key, parameter.senseArea),
         leftArea: getLeftArea(grid, key, parameter.senseArea),
         rightArea: getRightArea(grid, key, parameter.senseArea),
+        hiddenNeuron: {
+            "hidden.1": 0,
+            "hidden.2": 0,
+            "hidden.3": 0,
+            "hidden.4": 0
+        },
         actionPoints: {
             "moveUp": 0,
             "moveDown": 0,
