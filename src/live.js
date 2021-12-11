@@ -1,48 +1,65 @@
 var genomeSchema = {
   "0": {
     type: "neuron",
-    geneLength: 4,
+    geneLength: 8,
     codonShema: [
       {
-        hexBitCount: 1,
+        hexBitCount: 2,
         decoder: "discrete",
-        description: "sensoryNeuron",
-        keyCount: 12,
+        description: "inputNeuron",
+        keyCount: 26,
         discrete: {
-          "0": "distanceFromTop",
-          "1": "distanceFromBottom",
-          "2": "distanceFromLeft",
-          "3": "distanceFromRight",
-          "4": "oxygen.GradientLeftToRight",
-          "5": "oxygen.GradientTopToBottom",
-          "6": "oxygen.Neighbour",
-          "7": "carbon.GradientLeftToRight",
-          "8": "carbon.GradientTopToBottom",
-          "9": "carbon.Neighbour",
-          "a": "population.GradientLeftToRight",
-          "b": "population.GradientTopToBottom",
-          "c": "population.Neighbour",
-        }
-      }, {
-        hexBitCount: 1,
-        decoder: "discrete",
-        description: "motorNeuron",
-        keyCount: 5,
-        discrete: {
-          "0": "moveUp",
-          "1": "moveDown",
-          "2": "moveLeft",
-          "3": "moveRight",
-          "4": "moveRandom",
-          "5": "digestion"
+          "00": "distanceFromTop",
+          "01": "distanceFromBottom",
+          "02": "distanceFromLeft",
+          "03": "distanceFromRight",
+          "04": "empty.GradientLeftToRight",
+          "05": "empty.GradientTopToBottom",
+          "06": "empty.Neighbour",
+          "07": "live.GradientLeftToRight",
+          "08": "live.GradientTopToBottom",
+          "09": "live.Neighbour",
+          "0a": "hydrogen.GradientLeftToRight",
+          "0b": "hydrogen.GradientTopToBottom",
+          "0c": "hydrogen.Neighbour",
+          "0d": "carbon.GradientLeftToRight",
+          "0e": "carbon.GradientTopToBottom",
+          "0f": "carbon.Neighbour",
+          "10": "nitrogen.GradientLeftToRight",
+          "11": "nitrogen.GradientTopToBottom",
+          "12": "nitrogen.Neighbour",
+          "13": "oxygen.GradientLeftToRight",
+          "14": "oxygen.GradientTopToBottom",
+          "15": "oxygen.Neighbour",
+          "16": "hidden.1",
+          "17": "hidden.2",
+          "18": "hidden.3",
+          "19": "hidden.4",
         }
       }, {
         hexBitCount: 2,
+        decoder: "discrete",
+        description: "outputNeuron",
+        keyCount: 10,
+        discrete: {
+          "00": "moveUp",
+          "01": "moveDown",
+          "02": "moveLeft",
+          "03": "moveRight",
+          "04": "moveRandom",
+          "05": "metabolism",
+          "06": "hidden.1",
+          "07": "hidden.2",
+          "08": "hidden.3",
+          "09": "hidden.4",
+        }
+      }, {
+        hexBitCount: 3,
         decoder: "continuous",
         description: "synapseWeight",
         continuous: (seq) => {
-          var res = (8 / parseInt("ff", 16)) * parseInt(seq, 16)
-          if (res > 4) res = res - 4
+          var res = (4.0 / parseInt("fff", 16)) * parseInt(seq, 16)
+          if (res > 2) res = res - 4.0
           return res
         }
       }
@@ -50,17 +67,20 @@ var genomeSchema = {
   },
   "1": {
     type: "death",
-    geneLength: 3,
+    geneLength: 4,
     codonShema: [
       {
         hexBitCount: 1,
         decoder: "discrete",
         description: "factor",
-        keyCount: 3,
+        keyCount: 6,
         discrete: {
-          "0": "carbon",
-          "1": "oxygen",
-          "2": "population",
+          "0": "live",
+          "1": "empty",
+          "2": "carbon",
+          "3": "oxygen",
+          "4": "hydrogen",
+          "5": "nitrogen"
         }
       }, {
         hexBitCount: 1,
@@ -85,17 +105,18 @@ var genomeSchema = {
   },
   "2": {
     type: "replication",
-    geneLength: 3,
+    geneLength: 4,
     codonShema: [
       {
         hexBitCount: 1,
         decoder: "discrete",
         description: "factor",
-        keyCount: 3,
+        keyCount: 4,
         discrete: {
           "0": "carbon",
           "1": "oxygen",
-          "2": "population",
+          "2": "hydrogen",
+          "3": "nitrogen"
         }
       }, {
         hexBitCount: 1,
@@ -120,17 +141,20 @@ var genomeSchema = {
   },
   "3": {
     type: "mutation",
-    geneLength: 3,
+    geneLength: 4,
     codonShema: [
       {
         hexBitCount: 1,
         decoder: "discrete",
         description: "factor",
-        keyCount: 3,
+        keyCount: 6,
         discrete: {
-          "0": "carbon",
-          "1": "oxygen",
-          "2": "population",
+          "0": "live",
+          "1": "empty",
+          "2": "carbon",
+          "3": "oxygen",
+          "4": "hydrogen",
+          "5": "nitrogen"
         }
       }, {
         hexBitCount: 1,
@@ -154,8 +178,8 @@ var genomeSchema = {
     ]
   },
   "4": {
-    type: "digestion",
-    geneLength: 2,
+    type: "metabolism",
+    geneLength: 3,
     codonShema: [
       {
         hexBitCount: 1,
@@ -163,25 +187,32 @@ var genomeSchema = {
         description: "consume",
         keyCount: 2,
         discrete: {
-          "0": "carbon",
-          "1": "oxygen",
+          "0": "live",
+          "1": "empty",
+          "2": "carbon",
+          "3": "oxygen",
+          "4": "hydrogen",
+          "5": "nitrogen"
         }
       },
       {
         hexBitCount: 1,
         decoder: "discrete",
         description: "produce",
-        keyCount: 2,
+        keyCount: 5,
         discrete: {
-          "0": "carbon",
-          "1": "oxygen",
+          "0": "empty",
+          "1": "carbon",
+          "2": "oxygen",
+          "3": "hydrogen",
+          "4": "nitrogen"
         }
       },
     ]
   },
   "5": {
     type: "parameter",
-    geneLength: 1,
+    geneLength: 2,
     codonShema: [
       {
         hexBitCount: 1,
@@ -203,8 +234,9 @@ var genomeDecoder = (genome) => {
         var codonShema = genomeSchema[key].codonShema
         var binaryGene = genome.substring(1, genomeSchema[key].geneLength + 1)
         var gene = {}
-        for (let i = 0; i < codonShema.length; i += codonShema[i].hexBitCount) {
+        for (let i = 0; i < codonShema.length; i++) {
           var seq = binaryGene.substring(0, codonShema[i].hexBitCount)
+         
           if (codonShema[i].decoder == "discrete") {
             gene[codonShema[i].description] = codonShema[i].discrete[seq]
           } else {
@@ -214,7 +246,7 @@ var genomeDecoder = (genome) => {
         }
         gene["type"] = genomeSchema[key].type
         decodedGenome.push(gene)
-        genome = genome.substring(genomeSchema[key].geneLength + 1)
+        genome = genome.substring(genomeSchema[key].geneLength)
       }
     })
   }
@@ -229,7 +261,7 @@ var genomeMutator = (genome) => {
         var codonShema = genomeSchema[key].codonShema
         var binaryGene = genome.substring(1, genomeSchema[key].geneLength + 1)
         var subsegment = []
-        for (let i = 0; i < codonShema.length; i += codonShema[i].hexBitCount) {
+        for (let i = 0; i < codonShema.length; i++) {
           var seq = binaryGene.substring(0, codonShema[i].hexBitCount)
           var mseq = ""
           switch (codonShema[i].decoder) {
@@ -257,7 +289,7 @@ var genomeMutator = (genome) => {
           "genePrefix": key,
           "subsegment": subsegment
         })
-        genome = genome.substring(genomeSchema[key].geneLength + 1)
+        genome = genome.substring(genomeSchema[key].geneLength)
       }
     })
   }
@@ -277,6 +309,10 @@ var genomeMutator = (genome) => {
   return mutatedGenome
 }
 
+var genomeMPCrossOver = (genomeA, genomeB) => {
+
+}
+
 var geneBuilder = (type) => {
     var gene = genomeSchema[type]
     var result = type
@@ -284,9 +320,10 @@ var geneBuilder = (type) => {
     for (let i = 0; i < gene.codonShema.length; i++) {
         var hexBitCount = gene.codonShema[i].hexBitCount
         var decoder = gene.codonShema[i].decoder
+        var value = ""
         switch (decoder) {
             case "discrete": {
-                var value = Math.floor(Math.random() * gene.codonShema[i].keyCount).toString(16)
+                value = Math.floor(Math.random() * gene.codonShema[i].keyCount).toString(16)
                 while (value.length < hexBitCount) value = "0" + value
                 result += value
             } break
@@ -294,7 +331,7 @@ var geneBuilder = (type) => {
             case "continuous": {
                 var maxValue = ""
                 for (let j = 0; j < hexBitCount; j++) maxValue += "f"
-                var value = Math.floor(Math.random() * parseInt(maxValue, 16)).toString(16)
+                value = Math.floor(Math.random() * parseInt(maxValue, 16)).toString(16)
                 while (value.length < hexBitCount) value = "0" + value
                 result += value
             } break
@@ -319,13 +356,12 @@ var liveProperties = (color, geneSequence) => {
         "color": color,
         "replicationCount": 0,
         "mutationCount": 0,
-        "digestionCount": 0,
+        "metabolismCount": 0,
         "distTravelUp": 0,
         "distTravelDown": 0,
         "distTravelLeft": 0,
         "distTravelRight": 0,
         "distTravelRand": 0,
-        "deathSignal": [],
         "replicationSignal": [],
         "mutationSignal": [],
         "moveUpSignal": [],
@@ -333,7 +369,7 @@ var liveProperties = (color, geneSequence) => {
         "moveLeftSignal": [],
         "moveRightSignal":  [],
         "moveRandomSignal": [],
-        "digestionSignal": [],
+        "metabolismSignal": [],
         "genome": genomeBuilder(geneSequence),
     }
     return properties
@@ -344,6 +380,7 @@ module.exports = {
   genomeDecoder: genomeDecoder,
   genomeMutator: genomeMutator,
   geneBuilder: genomeBuilder,
+  genomeMPCrossOver: genomeMPCrossOver,
   genomeBuilder: genomeBuilder,
   liveProperties: liveProperties
 }

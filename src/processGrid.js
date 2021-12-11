@@ -1,25 +1,32 @@
 const { atomProcessor } = require("./atomProcessor");
-const { emptyProcessor } = require("./emptyProcessor");
 const { liveProcessor } = require("./liveProcessor");
 
 module.exports = {
-    processGrid: (grid, objectList, statistic) => {
+    processGrid: (grid, objectList, statistic, currentObjectId) => {
 
         Object.keys(objectList).map((key) => {
-            switch (grid[key].type) {
+            if(objectList[key] != undefined) {
+                switch (grid[key].type) {
+                    case "empty":
+                        break;
 
-                case "empty":
-                    emptyProcessor(grid, objectList, statistic, key)
-                    break;
+                    case "live":
+                        var tkey = liveProcessor(grid, objectList, statistic, key)
+                        if (currentObjectId == key) {
+                            currentObjectId = tkey
+                        }
+                        break;
 
-                case "live":
-                    liveProcessor(grid, objectList, statistic, key)
-                    break;
-
-                default:
-                    atomProcessor(grid, objectList, statistic, key)
-                    break
+                    default:
+                        var tkey = atomProcessor(grid, objectList, statistic, key)
+                        if (currentObjectId == key) {
+                            currentObjectId = tkey
+                        }
+                        break
+                }
             }
         })
+
+        return currentObjectId
     }
 }

@@ -43,6 +43,7 @@ module.exports = {
                     statistic["death"] = 0
                     statistic["replication"] = 0
                     statistic["mutation"] = 0
+                    statistic["deathList"] = []
                 }break
                 default: {
                     distributeAtom(key, initList[key])
@@ -50,6 +51,7 @@ module.exports = {
                 }
             }
         })
+
 
     }
 }

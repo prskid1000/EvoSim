@@ -3,13 +3,12 @@ import { cellTypes, getProperties } from "./cellType";
 import { computeCircularColumn, computeCircularRow, moveCell } from "./cellUtility";
 import useWindowDimensions from "./customHooks";
 import { initGrid } from "./initGrid";
-import { genomeDecoder } from "./live";
+import { genomeDecoder, genomeMutator, liveProperties } from "./live";
 import { processDOM } from "./processDOM";
 import { processGrid } from "./processGrid";
 import { selectNextGen } from "./selectNextGen";
 import CanvasJSReact from './canvasjs.react';
 
-var CanvasJS = CanvasJSReact.CanvasJS;
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 var computeNumber = parseInt(process.env.REACT_APP_COMPUTE_NUMBER)
 var simulationSpeed = process.env.REACT_APP_SIMULATION_SPEED
@@ -23,7 +22,9 @@ for(let i = 0; i < computeNumber; i++) {
 
 var grid = {}
 var objectList = {}
-var statistic = {}
+var statistic = {
+  "deathList": []
+}
 for (let i = 0; i < computeNumber * computeNumber; i++) {
   grid[i.toString()] = {}
 }
@@ -35,24 +36,14 @@ var currentObjectId = undefined
 var negate = false
 var writeMode = false
 
-const options = {
-  title: {
-    text: "Basic Column Chart in React"
-  },
-  data: [{
-    type: "spline",
-    dataPoints: [
-      { x: 0, y: 10 },
-    ]
-  }]
-}
-
 function App() {
   var { height, width } = useWindowDimensions();
   var idx = 0
   var infoPanel = useRef()
   var cellInfoPanel = useRef()
-  var [stateStatistic, setStateStatistic] = useState()
+  var [stateStatistic, setStateStatistic] = useState({
+    "deathList": ["-1"]
+  })
   var [selectRadius, setSelectRadius] = useState({left: 0,right: 0,top: 0,bottom: 0})
   var [cellInfo, setCellInfo] = useState()
   var controlTable = useRef()
@@ -62,6 +53,7 @@ function App() {
   var genomePanel = useRef()
   var upload = useRef()
   var [initList, setInitList] = useState({})
+  var [options, setOptions] = useState({})
 
   var appStyle = {
     height: Math.min(height * 0.99, width * 0.99),
@@ -156,7 +148,7 @@ function App() {
       statistic = obj.statistic
       setStateStatistic(JSON.parse(JSON.stringify(statistic)))
       upload.current.hidden = true
-      processDOM(grid)
+      processDOM(grid, objectList, statistic)
     }
     reader.readAsText(event.target.files[0])
   }
@@ -196,21 +188,144 @@ function App() {
   var nextGen = () => {
     statistic = {}
     objectList = selectNextGen(grid, objectList, statistic, initList, selectRadius)
-    processDOM(grid)
+    processDOM(grid, objectList, statistic)
     setStateStatistic(JSON.parse(JSON.stringify(statistic)))
   }
 
   var initGen = () => {
     statistic = {}
     initGrid(grid, objectList, statistic, initList, geneSequence)
-    processDOM(grid)
+    processDOM(grid, objectList, statistic)
     setStateStatistic(JSON.parse(JSON.stringify(statistic)))
   }
 
   var simulate = () => {
-    processGrid(grid, objectList, statistic)
-    processDOM(grid)
+    currentObjectId = processGrid(grid, objectList, statistic, currentObjectId)
+    processDOM(grid, objectList, statistic)
     setStateStatistic(JSON.parse(JSON.stringify(statistic)))
+    if (objectList[currentObjectId] != undefined) {
+      if (grid[currentObjectId].type == "live") {
+        var info = genomeDecoder(objectList[currentObjectId].genome)
+        info.push({
+          "distTravelUp": objectList[currentObjectId].distTravelUp,
+          "distTravelDown": objectList[currentObjectId].distTravelDown,
+          "distTravelLeft": objectList[currentObjectId].distTravelLeft,
+          "distTravelRight": objectList[currentObjectId].distTravelRight,
+        })
+        info.push({
+          "distTravelRand": objectList[currentObjectId].distTravelRand,
+          "replicationCount": objectList[currentObjectId].replicationCount,
+          "mutationCount": objectList[currentObjectId].mutationCount,
+          "metabolismCount": objectList[currentObjectId].metabolismCount
+        })
+        options.replicationSignal = {
+          title: {
+            text: "Replication Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[currentObjectId].replicationSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+
+        options.mutationSignal = {
+          title: {
+            text: "Mutation Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[currentObjectId].mutationSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+
+        options.metabolismSignal = {
+          title: {
+            text: "Metabolism Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[currentObjectId].metabolismSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+
+        options.moveUpSignal = {
+          title: {
+            text: "Move Up Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[currentObjectId].moveUpSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+
+        options.moveDownSignal = {
+          title: {
+            text: "Move Down Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[currentObjectId].moveDownSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+
+        options.moveLeftSignal = {
+          title: {
+            text: "Move Left Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[currentObjectId].moveLeftSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+
+        options.moveRightSignal = {
+          title: {
+            text: "Move Right Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[currentObjectId].moveRightSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+
+        options.moveRandomSignal = {
+          title: {
+            text: "Move Random Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[currentObjectId].moveRandomSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+        setOptions(JSON.parse(JSON.stringify(options)))
+        setCellInfo(JSON.parse(JSON.stringify(info)))
+      } else {
+        var info = []
+        info.push({ "type": objectList[currentObjectId].type })
+        info.push({ "proton": objectList[currentObjectId].proton })
+        info.push({ "neutron": objectList[currentObjectId].neutron })
+        info.push({ "electron": objectList[currentObjectId].electron })
+        info.push({ "mass": objectList[currentObjectId].mass })
+        info.push({ "charge": objectList[currentObjectId].charge })
+        setCellInfo(JSON.parse(JSON.stringify(info)))
+      }
+    }
 
     if (runState == true) {
       setTimeout(() => {
@@ -230,7 +345,7 @@ function App() {
         var futureKey = computeCircularColumn(column, rowStart, rowEnd).toString()
         moveCell(grid, objectList, currentObjectId, futureKey)
         currentObjectId = futureKey
-        processDOM(grid)
+        processDOM(grid, objectList, statistic)
       }break
       case "selectRadius": {
        if(negate == false) {
@@ -262,7 +377,6 @@ function App() {
         cellTypePanel.current.style.left = (cell.offsetLeft).toString() + "px"
 
         if (objectList[futureKey] != undefined) {
-          currentObjectId = futureKey
           if (grid[futureKey].type == "live") {
             var info = genomeDecoder(objectList[futureKey].genome)
             info.push({
@@ -270,14 +384,109 @@ function App() {
               "distTravelDown": objectList[futureKey].distTravelDown,
               "distTravelLeft": objectList[futureKey].distTravelLeft,
               "distTravelRight": objectList[futureKey].distTravelRight,
-              "distTravelRand": objectList[futureKey].distTravelRand
             })
             info.push({
+              "distTravelRand": objectList[futureKey].distTravelRand,
               "replicationCount": objectList[futureKey].replicationCount,
               "mutationCount": objectList[futureKey].mutationCount,
-              "digestionCount": objectList[futureKey].digestionCount
+              "metabolismCount": objectList[futureKey].metabolismCount
             })
-            console.log(objectList[futureKey])
+            options.replicationSignal = {
+              title: {
+                text: "Replication Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].replicationSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.mutationSignal = {
+              title: {
+                text: "Mutation Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].mutationSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.metabolismSignal = {
+              title: {
+                text: "Metabolism Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].metabolismSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.moveUpSignal = {
+              title: {
+                text: "Move Up Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].moveUpSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.moveDownSignal = {
+              title: {
+                text: "Move Down Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].moveDownSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.moveLeftSignal = {
+              title: {
+                text: "Move Left Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].moveLeftSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.moveRightSignal = {
+              title: {
+                text: "Move Right Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].moveRightSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.moveRandomSignal = {
+              title: {
+                text: "Move Random Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].moveRandomSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+            setOptions(JSON.parse(JSON.stringify(options)))
             setCellInfo(JSON.parse(JSON.stringify(info)))
           } else {
             var info = []
@@ -290,7 +499,6 @@ function App() {
             setCellInfo(JSON.parse(JSON.stringify(info)))
           }
         }
-
       }
     }
   }
@@ -306,7 +514,7 @@ function App() {
         var futureKey = computeCircularColumn(column, rowStart, rowEnd).toString()
         moveCell(grid, objectList, currentObjectId, futureKey)
         currentObjectId = futureKey
-        processDOM(grid)
+        processDOM(grid, objectList, statistic)
       } break
       case "selectRadius": {
         if (negate == false) {
@@ -338,7 +546,6 @@ function App() {
         cellTypePanel.current.style.left = (cell.offsetLeft).toString() + "px"
 
         if (objectList[futureKey] != undefined) {
-          currentObjectId = futureKey
           if (grid[futureKey].type == "live") {
             var info = genomeDecoder(objectList[futureKey].genome)
             info.push({
@@ -346,14 +553,109 @@ function App() {
               "distTravelDown": objectList[futureKey].distTravelDown,
               "distTravelLeft": objectList[futureKey].distTravelLeft,
               "distTravelRight": objectList[futureKey].distTravelRight,
-              "distTravelRand": objectList[futureKey].distTravelRand
             })
             info.push({
+              "distTravelRand": objectList[futureKey].distTravelRand,
               "replicationCount": objectList[futureKey].replicationCount,
               "mutationCount": objectList[futureKey].mutationCount,
-              "digestionCount": objectList[futureKey].digestionCount
+              "metabolismCount": objectList[futureKey].metabolismCount
             })
-            info.concat(objectList[futureKey].PrevOut)
+            options.replicationSignal = {
+              title: {
+                text: "Replication Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].replicationSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.mutationSignal = {
+              title: {
+                text: "Mutation Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].mutationSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.metabolismSignal = {
+              title: {
+                text: "Metabolism Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].metabolismSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.moveUpSignal = {
+              title: {
+                text: "Move Up Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].moveUpSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.moveDownSignal = {
+              title: {
+                text: "Move Down Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].moveDownSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.moveLeftSignal = {
+              title: {
+                text: "Move Left Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].moveLeftSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.moveRightSignal = {
+              title: {
+                text: "Move Right Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].moveRightSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.moveRandomSignal = {
+              title: {
+                text: "Move Random Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].moveRandomSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+            setOptions(JSON.parse(JSON.stringify(options)))
             setCellInfo(JSON.parse(JSON.stringify(info)))
           } else {
             var info = []
@@ -366,7 +668,6 @@ function App() {
             setCellInfo(JSON.parse(JSON.stringify(info)))
           }
         }
-
       }
     }
   }
@@ -382,7 +683,7 @@ function App() {
         var futureKey = computeCircularColumn(column, rowStart, rowEnd).toString()
         moveCell(grid, objectList, currentObjectId, futureKey)
         currentObjectId = futureKey
-        processDOM(grid)
+        processDOM(grid, objectList, statistic)
       } break
       case "selectRadius": {
         if (negate == false) {
@@ -414,7 +715,6 @@ function App() {
         cellTypePanel.current.style.left = (cell.offsetLeft).toString() + "px"
 
         if (objectList[futureKey] != undefined) {
-          currentObjectId = futureKey
           if (grid[futureKey].type == "live") {
             var info = genomeDecoder(objectList[futureKey].genome)
             info.push({
@@ -422,14 +722,109 @@ function App() {
               "distTravelDown": objectList[futureKey].distTravelDown,
               "distTravelLeft": objectList[futureKey].distTravelLeft,
               "distTravelRight": objectList[futureKey].distTravelRight,
-              "distTravelRand": objectList[futureKey].distTravelRand
             })
             info.push({
+              "distTravelRand": objectList[futureKey].distTravelRand,
               "replicationCount": objectList[futureKey].replicationCount,
               "mutationCount": objectList[futureKey].mutationCount,
-              "digestionCount": objectList[futureKey].digestionCount
+              "metabolismCount": objectList[futureKey].metabolismCount
             })
-            info.concat(objectList[futureKey].PrevOut)
+            options.replicationSignal = {
+              title: {
+                text: "Replication Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].replicationSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.mutationSignal = {
+              title: {
+                text: "Mutation Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].mutationSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.ionSignal = {
+              title: {
+                text: "Metabolism Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].metabolismSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.moveUpSignal = {
+              title: {
+                text: "Move Up Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].moveUpSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.moveDownSignal = {
+              title: {
+                text: "Move Down Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].moveDownSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.moveLeftSignal = {
+              title: {
+                text: "Move Left Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].moveLeftSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.moveRightSignal = {
+              title: {
+                text: "Move Right Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].moveRightSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.moveRandomSignal = {
+              title: {
+                text: "Move Random Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].moveRandomSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+            setOptions(JSON.parse(JSON.stringify(options)))
             setCellInfo(JSON.parse(JSON.stringify(info)))
           } else {
             var info = []
@@ -457,7 +852,7 @@ function App() {
         var futureKey = computeCircularColumn(column, rowStart, rowEnd).toString()
         moveCell(grid, objectList, currentObjectId, futureKey)
         currentObjectId = futureKey
-        processDOM(grid)
+        processDOM(grid, objectList, statistic)
       } break
       case "selectRadius": {
         if (negate == false) {
@@ -489,7 +884,6 @@ function App() {
         cellTypePanel.current.style.left = (cell.offsetLeft).toString() + "px"
 
         if (objectList[futureKey] != undefined) {
-          currentObjectId = futureKey
           if (grid[futureKey].type == "live") {
             var info = genomeDecoder(objectList[futureKey].genome)
             info.push({
@@ -497,14 +891,109 @@ function App() {
               "distTravelDown": objectList[futureKey].distTravelDown,
               "distTravelLeft": objectList[futureKey].distTravelLeft,
               "distTravelRight": objectList[futureKey].distTravelRight,
-              "distTravelRand": objectList[futureKey].distTravelRand
             })
             info.push({
+              "distTravelRand": objectList[futureKey].distTravelRand,
               "replicationCount": objectList[futureKey].replicationCount,
               "mutationCount": objectList[futureKey].mutationCount,
-              "digestionCount": objectList[futureKey].digestionCount
+              "metabolismCount": objectList[futureKey].metabolismCount
             })
-            info.concat(objectList[futureKey].PrevOut)
+            options.replicationSignal = {
+              title: {
+                text: "Replication Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].replicationSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.mutationSignal = {
+              title: {
+                text: "Mutation Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].mutationSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.metabolismSignal = {
+              title: {
+                text: "Metabolism Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].metabolismSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.moveUpSignal = {
+              title: {
+                text: "Move Up Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].moveUpSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.moveDownSignal = {
+              title: {
+                text: "Move Down Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].moveDownSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.moveLeftSignal = {
+              title: {
+                text: "Move Left Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].moveLeftSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.moveRightSignal = {
+              title: {
+                text: "Move Right Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].moveRightSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+
+            options.moveRandomSignal = {
+              title: {
+                text: "Move Random Signal"
+              },
+              data: [{
+                type: "spline",
+                dataPoints: objectList[futureKey].moveRandomSignal.map((value, index) => (
+                  { x: parseInt(index), y: parseFloat(value) }
+                ))
+              }]
+            }
+            setOptions(JSON.parse(JSON.stringify(options)))
             setCellInfo(JSON.parse(JSON.stringify(info)))
           } else {
             var info = []
@@ -714,13 +1203,109 @@ function App() {
           "distTravelDown": objectList[currentObjectId].distTravelDown,
           "distTravelLeft": objectList[currentObjectId].distTravelLeft,
           "distTravelRight": objectList[currentObjectId].distTravelRight,
-          "distTravelRand": objectList[currentObjectId].distTravelRand
         })
         info.push({
+          "distTravelRand": objectList[currentObjectId].distTravelRand,
           "replicationCount": objectList[currentObjectId].replicationCount,
           "mutationCount": objectList[currentObjectId].mutationCount,
-          "digestionCount": objectList[currentObjectId].digestionCount
+          "metabolismCount": objectList[currentObjectId].metabolismCount
         })
+        options.replicationSignal = {
+          title: {
+            text: "Replication Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[currentObjectId].replicationSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+
+        options.mutationSignal = {
+          title: {
+            text: "Mutation Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[currentObjectId].mutationSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+
+        options.metabolismSignal = {
+          title: {
+            text: "Metabolism Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[currentObjectId].metabolismSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+
+        options.moveUpSignal = {
+          title: {
+            text: "Move Up Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[currentObjectId].moveUpSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+
+        options.moveDownSignal = {
+          title: {
+            text: "Move Down Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[currentObjectId].moveDownSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+
+        options.moveLeftSignal = {
+          title: {
+            text: "Move Left Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[currentObjectId].moveLeftSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+
+        options.moveRightSignal = {
+          title: {
+            text: "Move Right Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[currentObjectId].moveRightSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+
+        options.moveRandomSignal = {
+          title: {
+            text: "Move Random Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[currentObjectId].moveRandomSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+        setOptions(JSON.parse(JSON.stringify(options)))
         setCellInfo(JSON.parse(JSON.stringify(info)))
       } else {
         var info = []
@@ -761,13 +1346,111 @@ function App() {
           "distTravelDown": objectList[event.target.id].distTravelDown,
           "distTravelLeft": objectList[event.target.id].distTravelLeft,
           "distTravelRight": objectList[event.target.id].distTravelRight,
-          "distTravelRand": objectList[event.target.id].distTravelRand
         })
         info.push({
+          "distTravelRand": objectList[event.target.id].distTravelRand,
           "replicationCount": objectList[event.target.id].replicationCount,
           "mutationCount": objectList[event.target.id].mutationCount,
-          "digestionCount": objectList[event.target.id].digestionCount
+          "metabolismCount": objectList[event.target.id].metabolismCount
         })
+
+        options.replicationSignal = {
+          title: {
+            text: "Replication Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[event.target.id].replicationSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+
+        options.mutationSignal = {
+          title: {
+            text: "Mutation Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[event.target.id].mutationSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+
+        options.metabolismSignal = {
+          title: {
+            text: "Metabolism Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[event.target.id].metabolismSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+
+        options.moveUpSignal = {
+          title: {
+            text: "Move Up Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[event.target.id].moveUpSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+
+        options.moveDownSignal = {
+          title: {
+            text: "Move Down Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[event.target.id].moveDownSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+
+        options.moveLeftSignal = {
+          title: {
+            text: "Move Left Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[event.target.id].moveLeftSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+
+        options.moveRightSignal = {
+          title: {
+            text: "Move Right Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[event.target.id].moveRightSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+
+        options.moveRandomSignal = {
+          title: {
+            text: "Move Random Signal"
+          },
+          data: [{
+            type: "spline",
+            dataPoints: objectList[event.target.id].moveRandomSignal.map((value, index) => (
+              { x: parseInt(index), y: parseFloat(value) }
+            ))
+          }]
+        }
+
+        setOptions(JSON.parse(JSON.stringify(options)))
         setCellInfo(JSON.parse(JSON.stringify(info)))
       } else {
         var info = []
@@ -799,6 +1482,7 @@ function App() {
     cellTypePanel.current.hidden = true
     currentObjectId = selectTarget
     if (statistic[grid[selectTarget].type] == undefined) statistic[grid[selectTarget].type] = 0
+    if (statistic["deathList"] == undefined) statistic["deathList"] = []
     statistic[grid[selectTarget].type]++
     setStateStatistic(JSON.parse(JSON.stringify(statistic)))
   }
@@ -819,11 +1503,18 @@ function App() {
   }
 
   var onAdd = (event) => {
-    initList[event.target.value] = 0
-    setInitList(JSON.parse(JSON.stringify(initList)))
+    if (event.target.value != "empty") {
+      initList[event.target.value] = 0
+      setInitList(JSON.parse(JSON.stringify(initList)))
+    }
   }
 
   useEffect(() => {
+
+    //var x = liveProperties("white", geneSequence)
+    //console.log(x)
+    //console.log(genomeDecoder(x.genome))
+    //console.log(genomeMutator(x.genome))
 
     infoPanel.current.hidden = true
     cellInfoPanel.current.hidden = true
@@ -903,14 +1594,55 @@ function App() {
               </tr>
             </>
            ))}
-           <tr>
-            <div>
-              <CanvasJSChart options={options}
-              /* onRef = {ref => this.chart = ref} */
+          <tr>
+            {options.mutationSignal != undefined && <td colSpan="4">
+              <CanvasJSChart options={options.mutationSignal}
               />
-            </div>
-           </tr>
-        </tbody>
+            </td>}
+          </tr>
+          <tr>
+            {options.mutationSignal != undefined && <td colSpan="4">
+              <CanvasJSChart options={options.replicationSignal}
+              />
+            </td>}
+          </tr>
+          <tr>
+            {options.metabolismSignal != undefined && <td colSpan="4">
+              <CanvasJSChart options={options.metabolismSignal}
+              />
+            </td>}
+          </tr>
+          <tr>
+            {options.moveUpSignal != undefined && <td colSpan="4">
+              <CanvasJSChart options={options.moveUpSignal}
+              />
+            </td>}
+          </tr>
+          <tr>
+            {options.moveDownSignal != undefined && <td colSpan="4">
+              <CanvasJSChart options={options.moveDownSignal}
+              />
+            </td>}
+          </tr>
+          <tr>
+            {options.moveLeftSignal != undefined && <td colSpan="4">
+              <CanvasJSChart options={options.moveLeftSignal}
+              />
+            </td>}
+          </tr>
+          <tr>
+            {options.moveRightSignal != undefined && <td colSpan="4">
+              <CanvasJSChart options={options.moveRightSignal}
+              />
+            </td>}
+          </tr>
+          <tr>
+            {options.moveRandomSignal != undefined && <td colSpan="4">
+              <CanvasJSChart options={options.moveRandomSignal}
+              />
+            </td>}
+          </tr>
+          </tbody>
       </table>
       <table tabIndex={0} onKeyDown={onKeyDown} ref={controlTable} style={controlTableStyle} className="table">
         <thead className="thead-dark">
@@ -936,6 +1668,94 @@ function App() {
             <td>View/Hide Cell Information </td>
             <td>3(Toggle)</td>
           </tr>
+          <tr>
+            <td>Add Cell </td>
+            <td>4</td>
+          </tr>
+          <tr>
+            <td>Remove Cell </td>
+            <td>5</td>
+          </tr>
+          <tr>
+            <td>Move Cell Upward </td>
+            <td>6(Hold) + ArrowUp</td>
+          </tr>
+          <tr>
+            <td>Move Cell Downward </td>
+            <td>6(Hold) + ArrowDown</td>
+          </tr>
+          <tr>
+            <td>Move Cell Leftward </td>
+            <td>6(Hold) + ArrowLeft</td>
+          </tr>
+          <tr>
+            <td>Move Cell Rightward </td>
+            <td>6(Hold) + ArrowRight</td>
+          </tr>
+          <tr>
+            <td>Increase Top Select Radius </td>
+            <td>7(Hold) + ArrowUp</td>
+          </tr>
+          <tr>
+            <td>Increase Bottom Select Radius </td>
+            <td>7(Hold) + ArrowDown</td>
+          </tr>
+          <tr>
+            <td>Increase Left Select Radius </td>
+            <td>7(Hold) + ArrowLeft</td>
+          </tr>
+          <tr>
+            <td>Increase Right Select Radius </td>
+            <td>7(Hold) + ArrowRight</td>
+          </tr>
+          <tr>
+            <td>Decrease Top Select Radius </td>
+            <td>7(Hold) + i(Hold) +  ArrowUp</td>
+          </tr>
+          <tr>
+            <td>Decrease Bottom Select Radius </td>
+            <td>7(Hold) + i(Hold) + ArrowDown</td>
+          </tr>
+          <tr>
+            <td>Decrease Left Select Radius </td>
+            <td>7(Hold) + i(Hold) + ArrowLeft</td>
+          </tr>
+          <tr>
+            <td>Decrease Right Select Radius </td>
+            <td>7(Hold) + i(Hold) + ArrowRight</td>
+          </tr>
+          <tr>
+            <td>Genome Editor (Init/NextGen) </td>
+            <td>+(Toggle)</td>
+          </tr>
+          <tr>
+            <td>Init List Editor (Init/NextGen) </td>
+            <td>-(Toggle)</td>
+          </tr>
+          <tr>
+            <td>Init List Editor (Init/NextGen) </td>
+            <td>m(Toggle)</td>
+          </tr>
+          <tr>
+            <td>Init List Editor (Init/NextGen) </td>
+            <td>n(Toggle)</td>
+          </tr>
+          <tr>
+            <td>Move Cursor(Red) Up </td>
+            <td>ArrowUp</td>
+          </tr>
+          <tr>
+            <td>Move Cursor(Red) Down </td>
+            <td>ArrowDown</td>
+          </tr>
+          <tr>
+            <td>Move Cursor(Red) Left</td>
+            <td>ArrowLeft</td>
+          </tr>
+          <tr>
+            <td>Move Cursor(Red) Right </td>
+            <td>ArrowRight</td>
+          </tr>
         </tbody>
       </table>
       <table tabIndex={0} onKeyDown={onKeyDown} ref={radiusPanel} style={radiusStyle} className="table">
@@ -957,14 +1777,12 @@ function App() {
         </tbody>
       </table>
       <select tabIndex={0} onKeyDown={onKeyDown} ref={cellTypePanel} name="groupselect" className="form-control form-select col-12 col-md-6" style={selectStyle} onChange={onCellSelect}>
-        <option value="none" selected>Select Cell Type</option>
         {cellTypes.map((item) => (
           <option key={item} value={item}>{item}</option>
         ))
         }</select>
       <div style={uploadStyle} tabIndex={0} onKeyDown={onKeyDown} ref={initPanel}>
         <select style={selectStyle2} className="form-control form-select" onChange={onAdd}>
-          <option value="none" selected>Select Cell Type</option>
           {cellTypes.map((item) => (
             <option key={item} value={item}>{item}</option>
           ))
