@@ -1460,7 +1460,7 @@ function App() {
         info.push({ "electron": objectList[event.target.id].electron })
         info.push({ "mass": objectList[event.target.id].mass })
         info.push({ "charge": objectList[event.target.id].charge })
-        (JSON.parse(JSON.stringify(info)))
+        setCellInfo(JSON.parse(JSON.stringify(info)))
       }
     }
     
@@ -1595,49 +1595,49 @@ function App() {
             </>
            ))}
           <tr>
-            {options.mutationSignal != undefined && <td colSpan="4">
+            {options.mutationSignal != undefined && cellInfo.charge == undefined && <td colSpan="4">
               <CanvasJSChart options={options.mutationSignal}
               />
             </td>}
           </tr>
           <tr>
-            {options.mutationSignal != undefined && <td colSpan="4">
+            {options.mutationSignal != undefined && cellInfo.charge == undefined && <td colSpan="4">
               <CanvasJSChart options={options.replicationSignal}
               />
             </td>}
           </tr>
           <tr>
-            {options.metabolismSignal != undefined && <td colSpan="4">
+            {options.metabolismSignal != undefined && cellInfo.charge == undefined && <td colSpan="4">
               <CanvasJSChart options={options.metabolismSignal}
               />
             </td>}
           </tr>
           <tr>
-            {options.moveUpSignal != undefined && <td colSpan="4">
+            {options.moveUpSignal != undefined && cellInfo.charge == undefined && <td colSpan="4">
               <CanvasJSChart options={options.moveUpSignal}
               />
             </td>}
           </tr>
           <tr>
-            {options.moveDownSignal != undefined && <td colSpan="4">
+            {options.moveDownSignal != undefined && cellInfo.charge == undefined && <td colSpan="4">
               <CanvasJSChart options={options.moveDownSignal}
               />
             </td>}
           </tr>
           <tr>
-            {options.moveLeftSignal != undefined && <td colSpan="4">
+            {options.moveLeftSignal != undefined && cellInfo.charge == undefined && <td colSpan="4">
               <CanvasJSChart options={options.moveLeftSignal}
               />
             </td>}
           </tr>
           <tr>
-            {options.moveRightSignal != undefined && <td colSpan="4">
+            {options.moveRightSignal != undefined && cellInfo.charge == undefined && <td colSpan="4">
               <CanvasJSChart options={options.moveRightSignal}
               />
             </td>}
           </tr>
           <tr>
-            {options.moveRandomSignal != undefined && <td colSpan="4">
+            {options.moveRandomSignal != undefined && cellInfo.charge == undefined && <td colSpan="4">
               <CanvasJSChart options={options.moveRandomSignal}
               />
             </td>}

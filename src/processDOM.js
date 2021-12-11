@@ -24,12 +24,13 @@ module.exports = {
             }
         })
 
-        statistic.deathList.map((key) => {
-            var cell = document.getElementById(key)
-            cell.style.backgroundColor = "#695e7a"
-        })
-
-        statistic.deathList = []
+        if(statistic.deathList != undefined){
+            statistic.deathList.map((key) => {
+                var cell = document.getElementById(key)
+                cell.style.backgroundColor = "#695e7a"
+            })
+            statistic.deathList = []
+        }
 
     }
 }
