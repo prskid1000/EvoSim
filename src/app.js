@@ -12,7 +12,6 @@ import CanvasJSReact from './canvasjs.react';
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 var computeNumber = parseInt(process.env.REACT_APP_COMPUTE_NUMBER)
 var simulationSpeed = process.env.REACT_APP_SIMULATION_SPEED
-var geneSequence = process.env.REACT_APP_GENE_SEQUENCE
 var runState = false
 
 var num = []
@@ -35,8 +34,6 @@ var currentProperty = null
 var currentObjectId = undefined
 var negate = false
 var writeMode = false
-var borderTopLeft = 0
-var borderBottomLeft = computeNumber * computeNumber - computeNumber
 
 function App() {
   var { height, width } = useWindowDimensions();
@@ -56,6 +53,7 @@ function App() {
   var upload = useRef()
   var [initList, setInitList] = useState({})
   var [options, setOptions] = useState({})
+  var [geneSequence, setGeneSequence] = useState(process.env.REACT_APP_GENE_SEQUENCE)
 
   var appStyle = {
     height: Math.min(height * 0.99, width * 0.99),
@@ -1016,6 +1014,7 @@ function App() {
 
     switch(event.key) {
       case "+": {
+        console.log("hi")
         if (genomePanel.current.hidden == false) {
           genomePanel.current.hidden = true
           writeMode = false
@@ -1491,7 +1490,7 @@ function App() {
 
   var onSequenceChange = (event) => {
     geneSequence = event.target.value
-    console.log(geneSequence)
+    setGeneSequence(geneSequence)
   }
 
   var onDelete = (event) => {
@@ -1561,8 +1560,8 @@ function App() {
         <label className="custom-file-label" htmlFor="uploadScene">Upload Scene</label>
       </div>
       <div tabIndex={0} onKeyDown={onKeyDown} ref={genomePanel} class="form-group" style={uploadStyle}>
-        <label><b>GenomeSequence</b></label>
-        <input placeholder={geneSequence} type="text" class="form-control" onChange={onSequenceChange}></input>
+        <label><b>Global Init/NextGen Genome Sequence</b></label>
+        <input value={geneSequence} type="text" class="form-control" onChange={onSequenceChange}></input>
       </div>
       <table tabIndex={0} onKeyDown={onKeyDown} ref={infoPanel} style={infoPanelStyle} className="table">
         <thead className="thead-dark">
@@ -1727,7 +1726,7 @@ function App() {
             <td>7(Hold) + i(Hold) + ArrowRight</td>
           </tr>
           <tr>
-            <td>Genome Editor (Init/NextGen) </td>
+            <td>Global Genome Sequence Editor (Init/NextGen) </td>
             <td>+(Toggle)</td>
           </tr>
           <tr>
@@ -1735,11 +1734,11 @@ function App() {
             <td>-(Toggle)</td>
           </tr>
           <tr>
-            <td>Init List Editor (Init/NextGen) </td>
+            <td> Cell Statistic </td>
             <td>m(Toggle)</td>
           </tr>
           <tr>
-            <td>Init List Editor (Init/NextGen) </td>
+            <td>Evironment Statistic </td>
             <td>n(Toggle)</td>
           </tr>
           <tr>

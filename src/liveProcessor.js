@@ -152,16 +152,17 @@ var processMutation = (objectList, gene) => {
 }
 
 var processMetabolism = (statistic, grid, objectList, gene) => {
-    if (Math.tanh(currentLiveCell.actionPoints.metabolise) >= 1) {
+    if (Math.tanh(currentLiveCell.actionPoints.metabolise) > 0) {
         var consume = currentLiveCell.neighbours[gene.consume]
-        consume.map((key) => {
-            objectList[key.toString()] = getProperties(gene.produce)
-            grid[key.toString()].color = objectList[key.toString()].color
-            grid[key.toString()].type = gene.produce
+        if(consume != undefined) {
+            consume = consume[0]
+            objectList[consume.toString()] = getProperties(gene.produce)
+            grid[consume.toString()].color = objectList[consume.toString()].color
+            grid[consume.toString()].type = gene.produce
             statistic[gene.consume]--
             statistic[gene.produce]++
             objectList[currentLiveCell.key].metabolismCount++
-        })
+        }
     } 
 }
 
@@ -170,36 +171,35 @@ var processMovement = (grid, objectList) => {
     var moved = false
     var neighbour = getNeighbourArray(currentLiveCell.key)
 
-    if (Math.tanh(currentLiveCell.actionPoints.moveLeft) >= 1) {
+    if (Math.tanh(currentLiveCell.actionPoints.moveLeft) > 0) {
         moveCell(grid, objectList, currentLiveCell.key, neighbour[0])
         moved = true
         currentLiveCell.key = neighbour[0]
         objectList[currentLiveCell.key].distTravelLeft++
     }
 
-    if (Math.tanh(currentLiveCell.actionPoints.moveRight) >= 1) {
+    if (Math.tanh(currentLiveCell.actionPoints.moveRight) > 0) {
         moveCell(grid, objectList, currentLiveCell.key, neighbour[1])
         moved = true
         currentLiveCell.key = neighbour[1]
         objectList[currentLiveCell.key].distTravelRight++
     }
 
-    if (Math.tanh(currentLiveCell.actionPoints.moveUp) >= 1) {
+    if (Math.tanh(currentLiveCell.actionPoints.moveUp) > 0) {
         moveCell(grid, objectList, currentLiveCell.key, neighbour[2])
-        delete objectList[currentLiveCell.key]
         moved = true
         currentLiveCell.key = neighbour[2]
         objectList[currentLiveCell.key].distTravelUp++
     }
 
-    if (Math.tanh(currentLiveCell.actionPoints.moveDown) >= 1) {
+    if (Math.tanh(currentLiveCell.actionPoints.moveDown) > 0) {
         moveCell(grid, objectList, currentLiveCell.key, neighbour[3])
         moved = true
         currentLiveCell.key = neighbour[3]
         objectList[currentLiveCell.key].distTravelDown++
     }
 
-    if (moved == false && Math.tanh(currentLiveCell.actionPoints.moveRandom) >= 1) {
+    if (moved == false && Math.tanh(currentLiveCell.actionPoints.moveRandom) > 0) {
         var neighbourId = Math.floor(Math.random() * 7)
         var neighbour = getNeighbourArray(currentLiveCell.key)
         var target = neighbour[neighbourId]
