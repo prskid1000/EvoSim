@@ -3,7 +3,7 @@ import { cellTypes, getProperties } from "./cellType";
 import { computeCircularColumn, computeCircularRow, moveCell } from "./cellUtility";
 import useWindowDimensions from "./customHooks";
 import { initGrid } from "./initGrid";
-import { genomeDecoder, genomeMutator, liveProperties } from "./live";
+import { genomeDecoder, genomeMPCrossOver, genomeMutator, liveProperties } from "./live";
 import { processDOM } from "./processDOM";
 import { processGrid } from "./processGrid";
 import { selectNextGen } from "./selectNextGen";
@@ -1924,11 +1924,6 @@ function App() {
   }
 
   useEffect(() => {
-
-    //var x = liveProperties("white", geneSequence)
-    //console.log(x)
-    //console.log(genomeDecoder(x.genome))
-    //console.log(genomeMutator(x.genome))
 
     infoPanel.current.hidden = true
     cellInfoPanel.current.hidden = true

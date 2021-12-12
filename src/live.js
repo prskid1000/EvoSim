@@ -157,10 +157,11 @@ var genomeSchema = {
         hexBitCount: 1,
         decoder: "discrete",
         description: "comparator",
-        keyCount: 2,
+        keyCount: 3,
         discrete: {
           "0": "equal",
           "1": "greaterThan",
+          "2": "lessThan",
         }
       }, {
         hexBitCount: 1,
@@ -181,14 +182,24 @@ var genomeSchema = {
         hexBitCount: 1,
         decoder: "discrete",
         description: "consume",
-        keyCount: 2,
+        keyCount: 16,
         discrete: {
           "0": "live",
           "1": "empty",
           "2": "carbon",
           "3": "oxygen",
           "4": "hydrogen",
-          "5": "nitrogen"
+          "5": "nitrogen",
+          "6": "empty",
+          "7": "carbon",
+          "8": "oxygen",
+          "9": "hydrogen",
+          "a": "nitrogen",
+          "b": "live",
+          "c": "carbon",
+          "d": "oxygen",
+          "e": "hydrogen",
+          "f": "nitrogen"
         }
       },
       {
@@ -289,13 +300,23 @@ var genomeMutator = (genome) => {
       }
     })
   }
-  var segnum = Math.floor(Math.random() * segment.length)
-  var subsegnum = Math.floor(Math.random() * segment[segnum].subsegment.length)
+
+  var crossPoints = Math.floor(Math.random() * 5)
+  var segnum = {}
+  var subsegnum = {}
+
+  for (let k = 0; k < crossPoints; k++) {
+    var x = Math.floor(Math.random() * segment.length)
+    segnum[x] = true
+    subsegnum[Math.floor(Math.random() * segment[x].subsegment.length)] = true
+  }
+
   var mutatedGenome = ""
   for (let i = 0; i < segment.length; i++) {
+
     mutatedGenome += segment[i].genePrefix
     for (let j = 0; j < segment[i].subsegment.length; j++) {
-      if (i == segnum && j == subsegnum) {
+      if (segnum[i] == true && subsegnum[j] == true) {
         mutatedGenome += segment[i].subsegment[j].mutation
       } else {
         mutatedGenome += segment[i].subsegment[j].original
@@ -307,6 +328,76 @@ var genomeMutator = (genome) => {
 
 var genomeMPCrossOver = (genomeA, genomeB) => {
 
+  var segmentA = []
+  var segmentB = []
+  
+  while (genomeA.length) {
+    Object.keys(genomeSchema).map((key) => {
+      if (key == genomeA.substring(0, key.length)) {
+        var codonShema = genomeSchema[key].codonShema
+        var binaryGeneA = genomeA.substring(1, genomeSchema[key].geneLength + 1)
+        var subsegmentA = []
+        for (let i = 0; i < codonShema.length; i++) {
+          var seq = binaryGeneA.substring(0, codonShema[i].hexBitCount)
+          subsegmentA.push({
+            "genomeA": seq,
+          })
+          binaryGeneA = binaryGeneA.substring(codonShema[i].hexBitCount)
+        }
+        segmentA.push({
+          "genePrefix": key,
+          "subsegmentA": subsegmentA
+        })
+        genomeA = genomeA.substring(genomeSchema[key].geneLength)
+      }
+    })
+  }
+  while (genomeB.length) {
+    Object.keys(genomeSchema).map((key) => {
+      if (key == genomeB.substring(0, key.length)) {
+        var codonShema = genomeSchema[key].codonShema
+        var binaryGeneB = genomeB.substring(1, genomeSchema[key].geneLength + 1)
+        var subsegmentB = []
+        for (let i = 0; i < codonShema.length; i++) {
+          var seq = binaryGeneB.substring(0, codonShema[i].hexBitCount)
+          subsegmentB.push({
+            "genomeB": seq,
+          })
+          binaryGeneB = binaryGeneB.substring(codonShema[i].hexBitCount)
+        }
+        segmentB.push({
+          "genePrefix": key,
+          "subsegmentB": subsegmentB
+        })
+        genomeB = genomeB.substring(genomeSchema[key].geneLength)
+      }
+    })
+  }
+
+  var crossPoints = Math.floor(Math.random() * 5)
+  var crossedGenome = ""
+
+  var segnum = {}
+  var subsegnum = {}
+
+  for(let k = 0; k < crossPoints; k++) {
+    var x = Math.floor(Math.random() * segmentA.length)
+    segnum[x] = true
+    subsegnum[Math.floor(Math.random() * segmentA[x].subsegmentA.length)] = true
+  }
+
+  for (let i = 0; i < segmentA.length; i++) {
+    crossedGenome += segmentA[i].genePrefix
+    for (let j = 0; j < segmentA[i].subsegmentA.length; j++) {
+      if (segnum[i] == true && subsegnum[j] == true) {
+        crossedGenome += segmentA[i].subsegmentA[j].genomeA
+      } else {
+        crossedGenome += segmentB[i].subsegmentB[j].genomeB
+      }
+    }
+  }
+
+  return crossedGenome
 }
 
 var geneBuilder = (type) => {
@@ -366,6 +457,7 @@ var liveProperties = (color, geneSequence) => {
         "moveRightSignal":  [],
         "moveRandomSignal": [],
         "metabolismSignal": [],
+        "geneSequence": geneSequence,
         "genome": genomeBuilder(geneSequence),
     }
     return properties

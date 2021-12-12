@@ -1,6 +1,6 @@
 const { getProperties } = require("./cellType")
 const { computeCircularRow, getNeighbourArray, moveCell, getTopArea, getBottomArea, getLeftArea, getRightArea, getFilteredNeighbour } = require("./cellUtility")
-const { genomeMutator, genomeDecoder } = require("./live")
+const { genomeMutator, genomeDecoder, genomeMPCrossOver } = require("./live")
 
 var computeNumber = parseInt(process.env.REACT_APP_COMPUTE_NUMBER)
 var borderTopLeft = 0
@@ -62,6 +62,9 @@ var processNeuron = (gene) => {
 }
 
 var processDeath = (statistic, grid, objectList, gene) => {
+
+    if (currentLiveCell.produce[gene.factor] == true) return
+
     var flag = false
     var factorCount = currentLiveCell.neighbours[gene.factor]
     if (factorCount == undefined) factorCount = 0
@@ -87,6 +90,9 @@ var processDeath = (statistic, grid, objectList, gene) => {
 }
 
 var processReplication = (statistic, grid, objectList, gene) => {
+
+    if(currentLiveCell.produce[gene.factor] == true) return
+
     var flag = false
     var factorCount = currentLiveCell.neighbours[gene.factor]
     if (factorCount == undefined) factorCount = 0
@@ -106,15 +112,18 @@ var processReplication = (statistic, grid, objectList, gene) => {
         if (duplicate != undefined) {
             duplicate = duplicate[0]
            if(live != undefined) {
-               //Multipointcrossover
-               objectList[duplicate] = JSON.parse(JSON.stringify(objectList[currentLiveCell.key]))
-               objectList[currentLiveCell.key].replicationCount++
-               grid[duplicate].color = objectList[duplicate].color
-               grid[duplicate].type = "live"
-               statistic.replication++
-               statistic.live++
-               statistic[gene.factor]--
-               currentLiveCell.actionPoints.replicate = 1
+               live = live[0]
+               if (objectList[currentLiveCell.key].geneSequence == objectList[live].geneSequence) {
+                   objectList[duplicate] = JSON.parse(JSON.stringify(objectList[currentLiveCell.key]))
+                   objectList[duplicate].genome = genomeMPCrossOver(objectList[currentLiveCell.key].genome, objectList[live].genome)
+                   objectList[currentLiveCell.key].replicationCount++
+                   grid[duplicate].color = objectList[duplicate].color
+                   grid[duplicate].type = "live"
+                   statistic.replication++
+                   statistic.live++
+                   statistic[gene.factor]--
+                   currentLiveCell.actionPoints.replicate = 1
+               }
 
            } else {
                objectList[duplicate] = JSON.parse(JSON.stringify(objectList[currentLiveCell.key]))
@@ -132,6 +141,9 @@ var processReplication = (statistic, grid, objectList, gene) => {
 }
 
 var processMutation = (statistic, objectList, gene) => {
+
+    if (currentLiveCell.produce[gene.factor] == true) return
+
     var flag = false
     var factorCount = currentLiveCell.neighbours[gene.factor]
     if (factorCount == undefined) factorCount = 0
@@ -154,7 +166,7 @@ var processMutation = (statistic, objectList, gene) => {
 }
 
 var processMetabolism = (statistic, grid, objectList, gene) => {
-    if (Math.tanh(currentLiveCell.actionPoints.metabolise) > 0) {
+    if (Math.tanh(currentLiveCell.actionPoints.metabolise) > 0.1) {
         var consume = currentLiveCell.neighbours[gene.consume]
         if(consume != undefined) {
             consume = consume[0]
@@ -164,6 +176,7 @@ var processMetabolism = (statistic, grid, objectList, gene) => {
             statistic[gene.consume]--
             statistic[gene.produce]++
             statistic.metabolism++
+            if (gene.consume == "live") statistic.death++
             objectList[currentLiveCell.key].metabolismCount++
         }
     } 
@@ -174,35 +187,35 @@ var processMovement = (grid, objectList) => {
     var moved = false
     var neighbour = getNeighbourArray(currentLiveCell.key)
 
-    if (Math.tanh(currentLiveCell.actionPoints.moveLeft) > 0) {
+    if (Math.tanh(currentLiveCell.actionPoints.moveLeft) > 0.1) {
         moveCell(grid, objectList, currentLiveCell.key, neighbour[0])
         moved = true
         currentLiveCell.key = neighbour[0]
         objectList[currentLiveCell.key].distTravelLeft++
     }
 
-    if (Math.tanh(currentLiveCell.actionPoints.moveRight) > 0) {
+    if (Math.tanh(currentLiveCell.actionPoints.moveRight) > 0.1) {
         moveCell(grid, objectList, currentLiveCell.key, neighbour[1])
         moved = true
         currentLiveCell.key = neighbour[1]
         objectList[currentLiveCell.key].distTravelRight++
     }
 
-    if (Math.tanh(currentLiveCell.actionPoints.moveUp) > 0) {
+    if (Math.tanh(currentLiveCell.actionPoints.moveUp) > 0.1) {
         moveCell(grid, objectList, currentLiveCell.key, neighbour[2])
         moved = true
         currentLiveCell.key = neighbour[2]
         objectList[currentLiveCell.key].distTravelUp++
     }
 
-    if (Math.tanh(currentLiveCell.actionPoints.moveDown) > 0) {
+    if (Math.tanh(currentLiveCell.actionPoints.moveDown) > 0.1) {
         moveCell(grid, objectList, currentLiveCell.key, neighbour[3])
         moved = true
         currentLiveCell.key = neighbour[3]
         objectList[currentLiveCell.key].distTravelDown++
     }
 
-    if (moved == false && Math.tanh(currentLiveCell.actionPoints.moveRandom) > 0) {
+    if (moved == false && Math.tanh(currentLiveCell.actionPoints.moveRandom) > 0.1) {
         var neighbourId = Math.floor(Math.random() * 7)
         var neighbour = getNeighbourArray(currentLiveCell.key)
         var target = neighbour[neighbourId]
@@ -231,6 +244,7 @@ var liveProcessor = (grid, objectList, statistic, key) => {
         bottomArea: getBottomArea(grid, key, parameter.senseArea),
         leftArea: getLeftArea(grid, key, parameter.senseArea),
         rightArea: getRightArea(grid, key, parameter.senseArea),
+        produce: {},
         actionPoints: {
             "hidden.1": 0,
             "hidden.2": 0,
@@ -264,18 +278,29 @@ var liveProcessor = (grid, objectList, statistic, key) => {
     }
 
     for (let i = 0; i < decodedGenome.length; i++) {
+        switch (decodedGenome[i].type) {
+            case "metabolism": {
+                if (objectList[currentLiveCell.key] != undefined) processMetabolism(statistic, grid, objectList, decodedGenome[i])
+                currentLiveCell.produce[decodedGenome[i].produce] = true
+            } break
+        }
+    }
+
+    for (let i = 0; i < decodedGenome.length; i++) {
+        switch (decodedGenome[i].type) {
+            case "replication": {
+                if (objectList[currentLiveCell.key] != undefined) processReplication(statistic, grid, objectList, decodedGenome[i])
+            } break
+        }
+    }
+
+    for (let i = 0; i < decodedGenome.length; i++) {
         switch(decodedGenome[i].type) {
             case "death": {
                 if (objectList[currentLiveCell.key] != undefined) processDeath(statistic, grid, objectList, decodedGenome[i])
             } break
-            case "replication": {
-                if (objectList[currentLiveCell.key] != undefined) processReplication(statistic, grid, objectList, decodedGenome[i])
-            } break
             case "mutation": {
                 if (objectList[currentLiveCell.key] != undefined) processMutation(statistic, objectList, decodedGenome[i])
-            } break
-            case "metabolism": {
-                if (objectList[currentLiveCell.key] != undefined) processMetabolism(statistic, grid, objectList, decodedGenome[i])
             } break
         }
     }
