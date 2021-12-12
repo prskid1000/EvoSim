@@ -47,7 +47,7 @@ var genomeSchema = {
           "02": "moveLeft",
           "03": "moveRight",
           "04": "moveRandom",
-          "05": "metabolism",
+          "05": "metabolise",
           "06": "hidden.1",
           "07": "hidden.2",
           "08": "hidden.3",

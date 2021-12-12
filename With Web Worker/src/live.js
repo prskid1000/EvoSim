@@ -6,7 +6,7 @@ var genomeSchema = {
       {
         hexBitCount: 1,
         decoder: "discrete",
-        description: "sensoryNeuron",
+        description: "inputNeuron",
         keyCount: 12,
         discrete: {
           "0": "distanceFromTop",

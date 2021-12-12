@@ -16,7 +16,7 @@ var processNeuron = (gene) => {
         return (bottom - top) * (1.0 / (currentLiveCell.parameter.senseArea * currentLiveCell.parameter.senseArea / 2.0))
     }
 
-    switch (gene.sensoryNeuron) {
+    switch (gene.inputNeuron) {
         case "distanceFromTop": {
             value = (computeCircularRow(currentLiveCell.key) - borderTopLeft) * (1.0 / computeNumber)
         } break
@@ -58,7 +58,7 @@ var processNeuron = (gene) => {
         } break
     }
     
-    currentLiveCell.actionPoints[gene.motorNeuron] += value * gene.synapseWeight
+    currentLiveCell.actionPoints[outputNeuron] += value * gene.synapseWeight
 }
 
 var processDeath = (statistic, grid, objectList, gene) => {

@@ -20,14 +20,16 @@ var computeTopToBottomGradient = (type) => {
 }
 
 var processNeuron = (gene) => {
+
+    if(gene.inputNeuron == gene.outputNeuron) return 
     var value = 0
 
-    switch (gene.sensoryNeuron) {
+    switch (gene.inputNeuron) {
         case "distanceFromTop": {
-            value = (computeCircularRow(currentLiveCell.key) - borderTopLeft) * (1.0 / computeNumber)
+            value = ((computeCircularRow(currentLiveCell.key) - borderTopLeft) / computeNumber) * (1.0 / computeNumber)
         } break
         case "distanceFromBottom": {
-           value = (borderBottomLeft - computeCircularRow(currentLiveCell.key)) * (1.0 / computeNumber)
+            value = ((borderBottomLeft - computeCircularRow(currentLiveCell.key)) / computeNumber) * (1.0 / computeNumber)
         } break
         case "distanceFromLeft": {
             value = (parseInt(currentLiveCell.key) % computeNumber) * (1.0 / computeNumber)
@@ -36,24 +38,27 @@ var processNeuron = (gene) => {
             value = (computeNumber - (parseInt(currentLiveCell.key) % computeNumber)) * (1.0 / computeNumber)
         } break
         default: {
-            var idx = gene.sensoryNeuron.indexOf(".")
-            var type = gene.sensoryNeuron.substring(0, idx)
-            var senseType = gene.sensoryNeuron.substring(idx + 1)
-            switch(senseType) {
-                case "GradientLeftToRight": {
-                    value = computeLeftToRightGradient(type)
-                }break
-                case "GradientTopToBottom": {
-                    value = computeTopToBottomGradient(type)
-                } break
-                case "Neighbour": {
-                    value = currentLiveCell.neighbours[type] == undefined ? 0 : currentLiveCell.neighbours[type].length
-                }break 
+            var idx = gene.inputNeuron.indexOf(".")
+            var type = gene.inputNeuron.substring(0, idx)
+            var senseType = gene.inputNeuron.substring(idx + 1)
+            if(type == "hidden") {
+                value = currentLiveCell.actionPoints[gene.inputNeuron]
+            } else {
+                switch (senseType) {
+                    case "GradientLeftToRight": {
+                        value = computeLeftToRightGradient(type)
+                    } break
+                    case "GradientTopToBottom": {
+                        value = computeTopToBottomGradient(type)
+                    } break
+                    case "Neighbour": {
+                        value = currentLiveCell.neighbours[type] == undefined ? 0 : currentLiveCell.neighbours[type].length / 8.0
+                    } break
+                }
             }
         }
     }
-    
-    currentLiveCell.actionPoints[gene.motorNeuron] += value * gene.synapseWeight
+    currentLiveCell.actionPoints[gene.outputNeuron] += value * gene.synapseWeight
 }
 
 var processDeath = (statistic, grid, objectList, gene) => {
@@ -96,7 +101,6 @@ var processReplication = (statistic, grid, objectList, gene) => {
 
     if (flag == true) {
         var duplicate = currentLiveCell.neighbours[gene.factor]
-        console.log(factorCount, gene.comparator, gene.threshold, duplicate)
         var live = currentLiveCell.neighbours["live"]
         if (duplicate != undefined) {
             duplicate = duplicate[0]
@@ -163,45 +167,24 @@ var processMetabolism = (statistic, grid, objectList, gene) => {
 
 var processMovement = (grid, objectList) => {
 
-    var moveLeft = currentLiveCell.actionPoints.moveLeft
-    var moveRight = currentLiveCell.actionPoints.moveRight
-    var moveUp = currentLiveCell.actionPoints.moveUp
-    var moveDown = currentLiveCell.actionPoints.moveDown
-
-    if (currentLiveCell.actionPoints.moveLeft < 0) {
-        moveRight += Math.abs(currentLiveCell.actionPoints.moveLeft)
-    }
-
-    if (currentLiveCell.actionPoints.moveRight < 0) {
-        moveLeft += Math.abs(currentLiveCell.actionPoints.moveRight)
-    }
-
-    if (currentLiveCell.actionPoints.moveUp < 0) {
-        moveUp += Math.abs(currentLiveCell.actionPoints.moveUp)
-    }
-
-    if (currentLiveCell.actionPoints.moveDown < 0) {
-        moveDown += Math.abs(currentLiveCell.actionPoints.moveDown)
-    }
-
     var moved = false
     var neighbour = getNeighbourArray(currentLiveCell.key)
 
-    if (Math.tanh(moveLeft) >= 1) {
+    if (Math.tanh(currentLiveCell.actionPoints.moveLeft) >= 1) {
         moveCell(grid, objectList, currentLiveCell.key, neighbour[0])
         moved = true
         currentLiveCell.key = neighbour[0]
         objectList[currentLiveCell.key].distTravelLeft++
     }
 
-    if (Math.tanh(moveRight) >= 1) {
+    if (Math.tanh(currentLiveCell.actionPoints.moveRight) >= 1) {
         moveCell(grid, objectList, currentLiveCell.key, neighbour[1])
         moved = true
         currentLiveCell.key = neighbour[1]
         objectList[currentLiveCell.key].distTravelRight++
     }
 
-    if (Math.tanh(moveUp) >= 1) {
+    if (Math.tanh(currentLiveCell.actionPoints.moveUp) >= 1) {
         moveCell(grid, objectList, currentLiveCell.key, neighbour[2])
         delete objectList[currentLiveCell.key]
         moved = true
@@ -209,7 +192,7 @@ var processMovement = (grid, objectList) => {
         objectList[currentLiveCell.key].distTravelUp++
     }
 
-    if (Math.tanh(moveDown) >= 1) {
+    if (Math.tanh(currentLiveCell.actionPoints.moveDown) >= 1) {
         moveCell(grid, objectList, currentLiveCell.key, neighbour[3])
         moved = true
         currentLiveCell.key = neighbour[3]
@@ -245,13 +228,11 @@ var liveProcessor = (grid, objectList, statistic, key) => {
         bottomArea: getBottomArea(grid, key, parameter.senseArea),
         leftArea: getLeftArea(grid, key, parameter.senseArea),
         rightArea: getRightArea(grid, key, parameter.senseArea),
-        hiddenNeuron: {
+        actionPoints: {
             "hidden.1": 0,
             "hidden.2": 0,
             "hidden.3": 0,
-            "hidden.4": 0
-        },
-        actionPoints: {
+            "hidden.4": 0,
             "moveUp": 0,
             "moveDown": 0,
             "moveLeft": 0,
@@ -264,10 +245,23 @@ var liveProcessor = (grid, objectList, statistic, key) => {
     }
 
     for (let i = 0; i < decodedGenome.length; i++) {
-        switch(decodedGenome[i].type) {
+        switch (decodedGenome[i].type) {
             case "neuron": {
-                //if (objectList[currentLiveCell.key] != undefined) processNeuron( decodedGenome[i])
-            }break
+                if (objectList[currentLiveCell.key] != undefined && !decodedGenome[i].inputNeuron.startsWith("hidden")) processNeuron(decodedGenome[i])
+            } break
+        }
+    }
+
+    /*for (let i = 0; i < decodedGenome.length; i++) {
+        switch (decodedGenome[i].type) {
+            case "neuron": {
+                if (objectList[currentLiveCell.key] != undefined && decodedGenome[i].inputNeuron.startsWith("hidden")) processNeuron(decodedGenome[i])
+            } break
+        }
+    }*/
+
+    for (let i = 0; i < decodedGenome.length; i++) {
+        switch(decodedGenome[i].type) {
             case "death": {
                 if (objectList[currentLiveCell.key] != undefined) processDeath(statistic, grid, objectList, decodedGenome[i])
             } break
@@ -292,7 +286,7 @@ var liveProcessor = (grid, objectList, statistic, key) => {
         objectList[currentLiveCell.key].metabolismSignal.push(currentLiveCell.actionPoints.metabolise)
         objectList[currentLiveCell.key].replicationSignal.push(currentLiveCell.actionPoints.replicate)
         objectList[currentLiveCell.key].mutationSignal.push(currentLiveCell.actionPoints.mutate)
-        //processMovement(grid, objectList)
+        processMovement(grid, objectList)
     }
     return currentLiveCell.key
 }

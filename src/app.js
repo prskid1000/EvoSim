@@ -35,6 +35,8 @@ var currentProperty = null
 var currentObjectId = undefined
 var negate = false
 var writeMode = false
+var borderTopLeft = 0
+var borderBottomLeft = computeNumber * computeNumber - computeNumber
 
 function App() {
   var { height, width } = useWindowDimensions();
