@@ -1,5 +1,5 @@
 module.exports = {
-    processDOM: (grid, objectList, statistic) => {
+    processDOM: (grid, objectList, statistic, graphStatistic) => {
 
 
         Object.keys(grid).map((key) => {
@@ -31,6 +31,21 @@ module.exports = {
             })
             statistic.deathList = []
         }
+
+        graphStatistic["death"].push(statistic["death"])
+        graphStatistic["replication"].push(statistic["replication"])
+        graphStatistic["mutation"].push(statistic["mutation"])
+        graphStatistic["metabolism"].push(statistic["metabolism"])
+        graphStatistic["oxygen"].push(statistic["deathList"])
+        graphStatistic["carbon"].push(statistic["oxygen"])
+        graphStatistic["hydrogen"].push(statistic["carbon"])
+        graphStatistic["nitrogen"].push(statistic["hydrogen"])
+        graphStatistic["empty"].push(statistic["nitrogen"])
+
+        statistic["death"] = 0
+        statistic["replication"] = 0
+        statistic["mutation"] = 0
+        statistic["metabolism"] = 0
 
     }
 }

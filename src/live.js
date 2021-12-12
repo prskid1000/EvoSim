@@ -86,11 +86,10 @@ var genomeSchema = {
         hexBitCount: 1,
         decoder: "discrete",
         description: "comparator",
-        keyCount: 3,
+        keyCount: 2,
         discrete: {
-          "0": "equal",
-          "1": "lessThan",
-          "2": "greaterThan",
+          "0": "lessThan",
+          "1": "greaterThan",
         }
       }, {
         hexBitCount: 1,
@@ -122,11 +121,9 @@ var genomeSchema = {
         hexBitCount: 1,
         decoder: "discrete",
         description: "comparator",
-        keyCount: 3,
+        keyCount: 1,
         discrete: {
-          "0": "equal",
-          "1": "lessThan",
-          "2": "greaterThan",
+          "0": "greaterThan",
         }
       }, {
         hexBitCount: 1,
@@ -160,11 +157,10 @@ var genomeSchema = {
         hexBitCount: 1,
         decoder: "discrete",
         description: "comparator",
-        keyCount: 3,
+        keyCount: 2,
         discrete: {
           "0": "equal",
-          "1": "lessThan",
-          "2": "greaterThan",
+          "1": "greaterThan",
         }
       }, {
         hexBitCount: 1,

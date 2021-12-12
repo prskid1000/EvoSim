@@ -79,8 +79,9 @@ var processDeath = (statistic, grid, objectList, gene) => {
         delete objectList[currentLiveCell.key]
         grid[currentLiveCell.key].color = "black"
         grid[currentLiveCell.key].type = "empty"
-        statistic.liveCellCount--
-        statistic.deathCount++
+        statistic.live--
+        statistic.death++
+        statistic.empty++
         statistic.deathList.push(currentLiveCell.key)
     }   
 }
@@ -110,8 +111,8 @@ var processReplication = (statistic, grid, objectList, gene) => {
                objectList[currentLiveCell.key].replicationCount++
                grid[duplicate].color = objectList[duplicate].color
                grid[duplicate].type = "live"
-               statistic.replicationCount++
-               statistic.liveCellCount++
+               statistic.replication++
+               statistic.live++
                statistic[gene.factor]--
                currentLiveCell.actionPoints.replicate = 1
 
@@ -120,8 +121,8 @@ var processReplication = (statistic, grid, objectList, gene) => {
                objectList[currentLiveCell.key].replicationCount++
                grid[duplicate].color = objectList[duplicate].color
                grid[duplicate].type = "live"
-               statistic.replicationCount++
-               statistic.liveCellCount++
+               statistic.replication++
+               statistic.live++
                statistic[gene.factor]--
                currentLiveCell.actionPoints.replicate = 1
            }
@@ -130,7 +131,7 @@ var processReplication = (statistic, grid, objectList, gene) => {
 
 }
 
-var processMutation = (objectList, gene) => {
+var processMutation = (statistic, objectList, gene) => {
     var flag = false
     var factorCount = currentLiveCell.neighbours[gene.factor]
     if (factorCount == undefined) factorCount = 0
@@ -147,6 +148,7 @@ var processMutation = (objectList, gene) => {
     if (flag == true) {
         objectList[currentLiveCell.key].genome = genomeMutator(objectList[currentLiveCell.key].genome)
         objectList[currentLiveCell.key].mutationCount++
+        statistic.mutation++
         currentLiveCell.actionPoints.mutate = 1
     }
 }
@@ -161,6 +163,7 @@ var processMetabolism = (statistic, grid, objectList, gene) => {
             grid[consume.toString()].type = gene.produce
             statistic[gene.consume]--
             statistic[gene.produce]++
+            statistic.metabolism++
             objectList[currentLiveCell.key].metabolismCount++
         }
     } 
@@ -252,13 +255,13 @@ var liveProcessor = (grid, objectList, statistic, key) => {
         }
     }
 
-    /*for (let i = 0; i < decodedGenome.length; i++) {
+    for (let i = 0; i < decodedGenome.length; i++) {
         switch (decodedGenome[i].type) {
             case "neuron": {
                 if (objectList[currentLiveCell.key] != undefined && decodedGenome[i].inputNeuron.startsWith("hidden")) processNeuron(decodedGenome[i])
             } break
         }
-    }*/
+    }
 
     for (let i = 0; i < decodedGenome.length; i++) {
         switch(decodedGenome[i].type) {
@@ -269,7 +272,7 @@ var liveProcessor = (grid, objectList, statistic, key) => {
                 if (objectList[currentLiveCell.key] != undefined) processReplication(statistic, grid, objectList, decodedGenome[i])
             } break
             case "mutation": {
-                if (objectList[currentLiveCell.key] != undefined) processMutation(objectList, decodedGenome[i])
+                if (objectList[currentLiveCell.key] != undefined) processMutation(statistic, objectList, decodedGenome[i])
             } break
             case "metabolism": {
                 if (objectList[currentLiveCell.key] != undefined) processMetabolism(statistic, grid, objectList, decodedGenome[i])

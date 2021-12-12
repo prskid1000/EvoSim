@@ -1,7 +1,7 @@
 const { getProperties } = require("./cellType")
 
 module.exports = {
-    initGrid: (grid, objectList, statistic, initList, geneSequence) => {
+    initGrid: (grid, objectList, statistic, initList, geneSequence, graphStatistic) => {
 
         var gridLength = Object.keys(grid).length
 
@@ -35,15 +35,32 @@ module.exports = {
                 grid[key].type = "empty"
         })
 
+        statistic["death"] = 0
+        statistic["replication"] = 0
+        statistic["mutation"] = 0
+        statistic["metabolism"] = 0
+        statistic["deathList"] = []
+        statistic["oxygen"] = 0
+        statistic["carbon"] = 0
+        statistic["hydrogen"] = 0
+        statistic["nitrogen"] = 0
+        statistic["empty"] = 0
+
+        graphStatistic["death"] = []
+        graphStatistic["replication"] = []
+        graphStatistic["mutation"] = []
+        graphStatistic["metabolism"] = []
+        graphStatistic["oxygen"] = []
+        graphStatistic["carbon"] = []
+        graphStatistic["hydrogen"] = []
+        graphStatistic["nitrogen"] = []
+        graphStatistic["empty"] = []
+
         Object.keys(initList).map((key) => {
             switch(key) {
                 case "live": {
                     distributeLive(initList[key])
                     statistic[key] = initList[key]
-                    statistic["death"] = 0
-                    statistic["replication"] = 0
-                    statistic["mutation"] = 0
-                    statistic["deathList"] = []
                 }break
                 default: {
                     distributeAtom(key, initList[key])
@@ -52,6 +69,9 @@ module.exports = {
             }
         })
 
+        Object.keys(grid).map((key) => {
+            if (grid[key].type == "empty") statistic["empty"]++
+        })
 
     }
 }

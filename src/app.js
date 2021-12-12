@@ -24,6 +24,11 @@ var objectList = {}
 var statistic = {
   "deathList": []
 }
+
+var graphStatistic = {
+}
+
+
 for (let i = 0; i < computeNumber * computeNumber; i++) {
   grid[i.toString()] = {}
 }
@@ -43,6 +48,7 @@ function App() {
   var [stateStatistic, setStateStatistic] = useState({
     "deathList": ["-1"]
   })
+  var [stateOptions, setStateOptions] = useState({})
   var [selectRadius, setSelectRadius] = useState({left: 0,right: 0,top: 0,bottom: 0})
   var [cellInfo, setCellInfo] = useState()
   var controlTable = useRef()
@@ -148,7 +154,108 @@ function App() {
       statistic = obj.statistic
       setStateStatistic(JSON.parse(JSON.stringify(statistic)))
       upload.current.hidden = true
-      processDOM(grid, objectList, statistic)
+      processDOM(grid, objectList, statistic, graphStatistic)
+      stateOptions.death = {
+        title: {
+          text: "Death"
+        },
+        data: [{
+          type: "spline",
+          dataPoints: graphStatistic.death.map((value, index) => (
+            { x: parseInt(index), y: parseFloat(value) }
+          ))
+        }]
+      }
+      stateOptions.replication = {
+        title: {
+          text: "Replication"
+        },
+        data: [{
+          type: "spline",
+          dataPoints: graphStatistic.replication.map((value, index) => (
+            { x: parseInt(index), y: parseFloat(value) }
+          ))
+        }]
+      }
+      stateOptions.mutation = {
+        title: {
+          text: "Mutation"
+        },
+        data: [{
+          type: "spline",
+          dataPoints: graphStatistic.mutation.map((value, index) => (
+            { x: parseInt(index), y: parseFloat(value) }
+          ))
+        }]
+      }
+      stateOptions.metabolism = {
+        title: {
+          text: "Metabolism"
+        },
+        data: [{
+          type: "spline",
+          dataPoints: graphStatistic.metabolism.map((value, index) => (
+            { x: parseInt(index), y: parseFloat(value) }
+          ))
+        }]
+      }
+      stateOptions.carbon = {
+        title: {
+          text: "Carbon"
+        },
+        data: [{
+          type: "spline",
+          dataPoints: graphStatistic.carbon.map((value, index) => (
+            { x: parseInt(index), y: parseFloat(value) }
+          ))
+        }]
+      }
+      stateOptions.oxygen = {
+        title: {
+          text: "Oxygen"
+        },
+        data: [{
+          type: "spline",
+          dataPoints: graphStatistic.oxygen.map((value, index) => (
+            { x: parseInt(index), y: parseFloat(value) }
+          ))
+        }]
+      }
+      stateOptions.hydrogen = {
+        title: {
+          text: "Hydrogen"
+        },
+        data: [{
+          type: "spline",
+          dataPoints: graphStatistic.hydrogen.map((value, index) => (
+            { x: parseInt(index), y: parseFloat(value) }
+          ))
+        }]
+      }
+      stateOptions.nitrogen = {
+        title: {
+          text: "Nitrogen"
+        },
+        data: [{
+          type: "spline",
+          dataPoints: graphStatistic.nitrogen.map((value, index) => (
+            { x: parseInt(index), y: parseFloat(value) }
+          ))
+        }]
+      }
+      stateOptions.empty = {
+        title: {
+          text: "Free Space"
+        },
+        data: [{
+          type: "spline",
+          dataPoints: graphStatistic.empty.map((value, index) => (
+            { x: parseInt(index), y: parseFloat(value) }
+          ))
+        }]
+      }
+      setStateOptions(JSON.parse(JSON.stringify(stateOptions)))
+     
     }
     reader.readAsText(event.target.files[0])
   }
@@ -187,21 +294,323 @@ function App() {
 
   var nextGen = () => {
     statistic = {}
-    objectList = selectNextGen(grid, objectList, statistic, initList, selectRadius)
-    processDOM(grid, objectList, statistic)
+    objectList = selectNextGen(grid, objectList, statistic, initList, selectRadius, graphStatistic)
+    processDOM(grid, objectList, statistic, graphStatistic)
+
+    stateOptions.death = {
+      title: {
+        text: "Death"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.death.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.replication = {
+      title: {
+        text: "Replication"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.replication.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.mutation = {
+      title: {
+        text: "Mutation"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.mutation.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.metabolism = {
+      title: {
+        text: "Metabolism"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.metabolism.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.carbon = {
+      title: {
+        text: "Carbon"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.carbon.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.oxygen = {
+      title: {
+        text: "Oxygen"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.oxygen.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.hydrogen = {
+      title: {
+        text: "Hydrogen"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.hydrogen.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.nitrogen = {
+      title: {
+        text: "Nitrogen"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.nitrogen.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.empty = {
+      title: {
+        text: "Free Space"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.empty.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    setStateOptions(JSON.parse(JSON.stringify(stateOptions)))
+
     setStateStatistic(JSON.parse(JSON.stringify(statistic)))
   }
 
   var initGen = () => {
     statistic = {}
-    initGrid(grid, objectList, statistic, initList, geneSequence)
-    processDOM(grid, objectList, statistic)
+    initGrid(grid, objectList, statistic, initList, geneSequence, graphStatistic)
+    processDOM(grid, objectList, statistic, graphStatistic)
+    stateOptions.death = {
+      title: {
+        text: "Death"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.death.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.replication = {
+      title: {
+        text: "Replication"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.replication.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.mutation = {
+      title: {
+        text: "Mutation"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.mutation.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.metabolism = {
+      title: {
+        text: "Metabolism"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.metabolism.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.carbon = {
+      title: {
+        text: "Carbon"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.carbon.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.oxygen = {
+      title: {
+        text: "Oxygen"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.oxygen.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.hydrogen = {
+      title: {
+        text: "Hydrogen"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.hydrogen.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.nitrogen = {
+      title: {
+        text: "Nitrogen"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.nitrogen.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.empty = {
+      title: {
+        text: "Free Space"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.empty.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    setStateOptions(JSON.parse(JSON.stringify(stateOptions)))
     setStateStatistic(JSON.parse(JSON.stringify(statistic)))
   }
 
   var simulate = () => {
     currentObjectId = processGrid(grid, objectList, statistic, currentObjectId)
-    processDOM(grid, objectList, statistic)
+    processDOM(grid, objectList, statistic, graphStatistic)
+    stateOptions.death = {
+      title: {
+        text: "Death"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.death.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.replication = {
+      title: {
+        text: "Replication"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.replication.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.mutation = {
+      title: {
+        text: "Mutation"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.mutation.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.metabolism = {
+      title: {
+        text: "Metabolism"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.metabolism.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.carbon = {
+      title: {
+        text: "Carbon"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.carbon.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.oxygen = {
+      title: {
+        text: "Oxygen"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.oxygen.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.hydrogen = {
+      title: {
+        text: "Hydrogen"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.hydrogen.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.nitrogen = {
+      title: {
+        text: "Nitrogen"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.nitrogen.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    stateOptions.empty = {
+      title: {
+        text: "Free Space"
+      },
+      data: [{
+        type: "spline",
+        dataPoints: graphStatistic.empty.map((value, index) => (
+          { x: parseInt(index), y: parseFloat(value) }
+        ))
+      }]
+    }
+    setStateOptions(JSON.parse(JSON.stringify(stateOptions)))
     setStateStatistic(JSON.parse(JSON.stringify(statistic)))
     if (objectList[currentObjectId] != undefined) {
       if (grid[currentObjectId].type == "live") {
@@ -345,7 +754,8 @@ function App() {
         var futureKey = computeCircularColumn(column, rowStart, rowEnd).toString()
         moveCell(grid, objectList, currentObjectId, futureKey)
         currentObjectId = futureKey
-        processDOM(grid, objectList, statistic)
+        processDOM(grid, objectList, statistic, graphStatistic)
+       
       }break
       case "selectRadius": {
        if(negate == false) {
@@ -514,7 +924,8 @@ function App() {
         var futureKey = computeCircularColumn(column, rowStart, rowEnd).toString()
         moveCell(grid, objectList, currentObjectId, futureKey)
         currentObjectId = futureKey
-        processDOM(grid, objectList, statistic)
+        processDOM(grid, objectList, statistic, graphStatistic)
+       
       } break
       case "selectRadius": {
         if (negate == false) {
@@ -683,7 +1094,8 @@ function App() {
         var futureKey = computeCircularColumn(column, rowStart, rowEnd).toString()
         moveCell(grid, objectList, currentObjectId, futureKey)
         currentObjectId = futureKey
-        processDOM(grid, objectList, statistic)
+        processDOM(grid, objectList, statistic, graphStatistic)
+       
       } break
       case "selectRadius": {
         if (negate == false) {
@@ -852,7 +1264,8 @@ function App() {
         var futureKey = computeCircularColumn(column, rowStart, rowEnd).toString()
         moveCell(grid, objectList, currentObjectId, futureKey)
         currentObjectId = futureKey
-        processDOM(grid, objectList, statistic)
+        processDOM(grid, objectList, statistic, graphStatistic)
+       
       } break
       case "selectRadius": {
         if (negate == false) {
@@ -1572,11 +1985,67 @@ function App() {
         </thead>
         <tbody className="table-light">
         {stateStatistic && Object.keys(stateStatistic).map((key) => (
-          <tr key={key}>
-            <td>{key}</td>
-            <td>{stateStatistic[key]}</td>
-          </tr>
+          <>{key != "deathList" && key != "death" && key != "replication" && key != "mutation" && key != "metabolism" &&
+            <tr key={key}>
+              <td>{key}</td>
+              <td>{stateStatistic[key]}</td>
+            </tr>
+          }</>
         ))}
+          <tr>
+            {stateOptions.mutation != undefined && <td colSpan="2">
+              <CanvasJSChart options={stateOptions.mutation}
+              />
+            </td>}
+          </tr>
+          <tr>
+            {stateOptions.replication != undefined && <td colSpan="2">
+              <CanvasJSChart options={stateOptions.replication}
+              />
+            </td>}
+          </tr>
+          <tr>
+            {stateOptions.death != undefined && <td colSpan="2">
+              <CanvasJSChart options={stateOptions.death}
+              />
+            </td>}
+          </tr>
+          <tr>
+            {stateOptions.metabolism != undefined && <td colSpan="2">
+              <CanvasJSChart options={stateOptions.metabolism}
+              />
+            </td>}
+          </tr>
+          <tr>
+            {stateOptions.oxygen != undefined && <td colSpan="2">
+              <CanvasJSChart options={stateOptions.oxygen}
+              />
+            </td>}
+          </tr>
+          <tr>
+            {stateOptions.carbon != undefined && <td colSpan="2">
+              <CanvasJSChart options={stateOptions.carbon}
+              />
+            </td>}
+          </tr>
+          <tr>
+            {stateOptions.hydrogen != undefined && <td colSpan="2">
+              <CanvasJSChart options={stateOptions.hydrogen}
+              />
+            </td>}
+          </tr>
+          <tr>
+            {stateOptions.nitrogen != undefined && <td colSpan="2">
+              <CanvasJSChart options={stateOptions.nitrogen}
+              />
+            </td>}
+          </tr>
+          <tr>
+            {stateOptions.empty != undefined && <td colSpan="2">
+              <CanvasJSChart options={stateOptions.empty}
+              />
+            </td>}
+          </tr>
         </tbody>
       </table>
       <table tabIndex={0} onKeyDown={onKeyDown} ref={cellInfoPanel} style={cellInfoPanelStyle} className="table">
