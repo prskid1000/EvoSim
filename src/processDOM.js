@@ -36,11 +36,47 @@ module.exports = {
         graphStatistic["replication"].push(statistic["replication"])
         graphStatistic["mutation"].push(statistic["mutation"])
         graphStatistic["metabolism"].push(statistic["metabolism"])
-        graphStatistic["oxygen"].push(statistic["deathList"])
-        graphStatistic["carbon"].push(statistic["oxygen"])
-        graphStatistic["hydrogen"].push(statistic["carbon"])
-        graphStatistic["nitrogen"].push(statistic["hydrogen"])
-        graphStatistic["empty"].push(statistic["nitrogen"])
+        graphStatistic["oxygen"].push(statistic["oxygen"])
+        graphStatistic["carbon"].push(statistic["carbon"])
+        graphStatistic["hydrogen"].push(statistic["hydrogen"])
+        graphStatistic["nitrogen"].push(statistic["nitrogen"])
+        graphStatistic["empty"].push(statistic["empty"])
+
+        if (graphStatistic["death"].length > process.env.REACT_APP_HISTORY_COUNT) {
+            graphStatistic["death"].shift()
+        }
+
+        if (graphStatistic["replication"].length > process.env.REACT_APP_HISTORY_COUNT) {
+            graphStatistic["replication"].shift()
+        }
+
+        if (graphStatistic["mutation"].length > process.env.REACT_APP_HISTORY_COUNT) {
+            graphStatistic["mutation"].shift()
+        }
+
+        if (graphStatistic["metabolism"].length > process.env.REACT_APP_HISTORY_COUNT) {
+            graphStatistic["metabolism"].shift()
+        }
+
+        if (graphStatistic["oxygen"].length > process.env.REACT_APP_HISTORY_COUNT) {
+            graphStatistic["oxygen"].shift()
+        }
+
+        if (graphStatistic["carbon"].length > process.env.REACT_APP_HISTORY_COUNT) {
+            graphStatistic["carbon"].shift()
+        }
+
+        if (graphStatistic["hydrogen"].length > process.env.REACT_APP_HISTORY_COUNT) {
+            graphStatistic["hydrogen"].shift()
+        }
+
+        if (graphStatistic["nitrogen"].length > process.env.REACT_APP_HISTORY_COUNT) {
+            graphStatistic["nitrogen"].shift()
+        }
+
+        if (graphStatistic["empty"].length > process.env.REACT_APP_HISTORY_COUNT) {
+            graphStatistic["empty"].shift()
+        }
 
         statistic["death"] = 0
         statistic["replication"] = 0
