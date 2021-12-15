@@ -437,6 +437,46 @@ var genomeBuilder = (geneSequence) => {
     return genome;
 }
 
+var genomeHelperA = (genome) => {
+  var decodedGenome = []
+  while (genome.length) {
+    Object.keys(genomeSchema).map((key) => {
+      if (key == genome.substring(0, key.length)) {
+        var codonShema = genomeSchema[key].codonShema
+        var binaryGene = genome.substring(1, genomeSchema[key].geneLength + 1)
+        var gene = {}
+        for (let i = 0; i < codonShema.length; i++) {
+          if (codonShema[i].decoder == "discrete") {
+            gene[codonShema[i].description] = codonShema[i].discrete
+          } else {
+            gene[codonShema[i].description] = "continous"
+          }
+          binaryGene = binaryGene.substring(codonShema[i].hexBitCount)
+        }
+        decodedGenome.push(gene)
+        genome = genome.substring(genomeSchema[key].geneLength)
+      }
+    })
+  }
+  return decodedGenome
+}
+
+var genomeHelperB = () => {
+  var reverseGenome = {}
+  Object.keys(genomeSchema).map((key) => {
+    var codonShema = genomeSchema[key].codonShema
+    console.log(codonShema)
+    for (let i = 0; i < codonShema.length; i++) {
+      if (codonShema[i].decoder == "discrete") {
+        Object.keys(codonShema[i].discrete).map((subkey) => {
+          reverseGenome[codonShema[i].discrete[subkey]] = subkey
+        })
+      }
+    }
+  })
+  return reverseGenome
+}
+
 var liveProperties = (color, geneSequence) => {
     var properties = {
         "type": "live",
@@ -470,5 +510,7 @@ module.exports = {
   geneBuilder: genomeBuilder,
   genomeMPCrossOver: genomeMPCrossOver,
   genomeBuilder: genomeBuilder,
-  liveProperties: liveProperties
+  liveProperties: liveProperties,
+  genomeHelperA: genomeHelperA,
+  genomeHelperB: genomeHelperB(),
 }

@@ -9,15 +9,15 @@ module.exports = {
 
         Object.keys(objectList).map((key) => {
             if(grid[key].type == "live") {
-                if (objectList[key].metabolismSignal[objectList[key].metabolismSignal - 1] >= 1) {
+                if (objectList[key].metabolismSignal[objectList[key].metabolismSignal.length - 1] >= 0.1) {
                     var cell = document.getElementById(key)
                     cell.style.backgroundColor = "#a89832"
                 }
-                if (objectList[key].replicationSignal[objectList[key].replicationSignal.length - 1] >= 1) {
+                if (objectList[key].replicationSignal[objectList[key].replicationSignal.length - 1] >= 0.1) {
                     var cell = document.getElementById(key)
                     cell.style.backgroundColor = "#a85a32"
                 }
-                if (objectList[key].mutationSignal[objectList[key].mutationSignal.length - 1] >= 1) {
+                if (objectList[key].mutationSignal[objectList[key].mutationSignal.length - 1] >= 0.1) {
                     var cell = document.getElementById(key)
                     cell.style.backgroundColor = "#a83273"
                 }

@@ -3,7 +3,7 @@ import { cellTypes, getProperties } from "./cellType";
 import { computeCircularColumn, computeCircularRow, moveCell } from "./cellUtility";
 import useWindowDimensions from "./customHooks";
 import { initGrid } from "./initGrid";
-import { genomeDecoder, genomeMPCrossOver, genomeMutator, liveProperties } from "./live";
+import { genomeDecoder, genomeHelperA, genomeHelperB } from "./live";
 import { processDOM } from "./processDOM";
 import { processGrid } from "./processGrid";
 import { selectNextGen } from "./selectNextGen";
@@ -51,6 +51,7 @@ function App() {
   var [stateOptions, setStateOptions] = useState({})
   var [selectRadius, setSelectRadius] = useState({left: 0,right: 0,top: 0,bottom: 0})
   var [cellInfo, setCellInfo] = useState()
+  var [genomeInfo, setGenomeInfo] = useState()
   var controlTable = useRef()
   var cellTypePanel = useRef()
   var radiusPanel = useRef()
@@ -60,6 +61,7 @@ function App() {
   var [initList, setInitList] = useState({})
   var [options, setOptions] = useState({})
   var [geneSequence, setGeneSequence] = useState(process.env.REACT_APP_GENE_SEQUENCE)
+  var genomeEditor = useRef()
 
   var appStyle = {
     height: Math.min(height * 0.99, width * 0.99),
@@ -780,6 +782,9 @@ function App() {
         cellInfoPanel.current.style.top = (cell.offsetTop).toString() + "px"
         cellInfoPanel.current.style.left = (cell.offsetLeft).toString() + "px"
 
+        genomeEditor.current.style.top = (cell.offsetTop).toString() + "px"
+        genomeEditor.current.style.left = (cell.offsetLeft).toString() + "px"
+
         infoPanel.current.style.top = (cell.offsetTop).toString() + "px"
         infoPanel.current.style.left = (cell.offsetLeft).toString() + "px"
 
@@ -897,6 +902,7 @@ function App() {
               }]
             }
             setOptions(JSON.parse(JSON.stringify(options)))
+            setGenomeInfo(JSON.parse(JSON.stringify(genomeHelperA(objectList[event.target.id].genome))))
             setCellInfo(JSON.parse(JSON.stringify(info)))
           } else {
             var info = []
@@ -950,6 +956,9 @@ function App() {
         cellInfoPanel.current.style.top = (cell.offsetTop).toString() + "px"
         cellInfoPanel.current.style.left = (cell.offsetLeft).toString() + "px"
 
+        genomeEditor.current.style.top = (cell.offsetTop).toString() + "px"
+        genomeEditor.current.style.left = (cell.offsetLeft).toString() + "px"
+
         infoPanel.current.style.top = (cell.offsetTop).toString() + "px"
         infoPanel.current.style.left = (cell.offsetLeft).toString() + "px"
 
@@ -1067,6 +1076,7 @@ function App() {
               }]
             }
             setOptions(JSON.parse(JSON.stringify(options)))
+            setGenomeInfo(JSON.parse(JSON.stringify(genomeHelperA(objectList[event.target.id].genome))))
             setCellInfo(JSON.parse(JSON.stringify(info)))
           } else {
             var info = []
@@ -1119,6 +1129,9 @@ function App() {
 
         cellInfoPanel.current.style.top = (cell.offsetTop).toString() + "px"
         cellInfoPanel.current.style.left = (cell.offsetLeft).toString() + "px"
+
+        genomeEditor.current.style.top = (cell.offsetTop).toString() + "px"
+        genomeEditor.current.style.left = (cell.offsetLeft).toString() + "px"
 
         infoPanel.current.style.top = (cell.offsetTop).toString() + "px"
         infoPanel.current.style.left = (cell.offsetLeft).toString() + "px"
@@ -1237,6 +1250,7 @@ function App() {
               }]
             }
             setOptions(JSON.parse(JSON.stringify(options)))
+            setGenomeInfo(JSON.parse(JSON.stringify(genomeHelperA(objectList[event.target.id].genome))))
             setCellInfo(JSON.parse(JSON.stringify(info)))
           } else {
             var info = []
@@ -1295,6 +1309,9 @@ function App() {
 
         cellTypePanel.current.style.top = (cell.offsetTop).toString() + "px"
         cellTypePanel.current.style.left = (cell.offsetLeft).toString() + "px"
+
+        genomeEditor.current.style.top = (cell.offsetTop).toString() + "px"
+        genomeEditor.current.style.left = (cell.offsetLeft).toString() + "px"
 
         if (objectList[futureKey] != undefined) {
           if (grid[futureKey].type == "live") {
@@ -1407,6 +1424,7 @@ function App() {
               }]
             }
             setOptions(JSON.parse(JSON.stringify(options)))
+            setGenomeInfo(JSON.parse(JSON.stringify(genomeHelperA(objectList[event.target.id].genome))))
             setCellInfo(JSON.parse(JSON.stringify(info)))
           } else {
             var info = []
@@ -1452,6 +1470,16 @@ function App() {
         if (writeMode == false) {
           if (negate == false) {
             negate = true
+          }
+        }
+        break
+      }
+      case "g": {
+        if (writeMode == false) {
+          if(genomeEditor.current.hidden == false) {
+            genomeEditor.current.hidden = true
+          } else {
+            genomeEditor.current.hidden = false
           }
         }
         break
@@ -1744,6 +1772,9 @@ function App() {
     cellInfoPanel.current.style.top = (cell.offsetTop).toString() + "px"
     cellInfoPanel.current.style.left = (cell.offsetLeft).toString() + "px"
 
+    genomeEditor.current.style.top = (cell.offsetTop).toString() + "px"
+    genomeEditor.current.style.left = (cell.offsetLeft).toString() + "px"
+
     infoPanel.current.style.top = (cell.offsetTop).toString() + "px"
     infoPanel.current.style.left = (cell.offsetLeft).toString() + "px"
 
@@ -1863,8 +1894,8 @@ function App() {
             ))
           }]
         }
-
         setOptions(JSON.parse(JSON.stringify(options)))
+        setGenomeInfo(JSON.parse(JSON.stringify(genomeHelperA(objectList[event.target.id].genome))))
         setCellInfo(JSON.parse(JSON.stringify(info)))
       } else {
         var info = []
@@ -1916,6 +1947,14 @@ function App() {
     setInitList(JSON.parse(JSON.stringify(initList)))
   }
 
+  var onGeneChange = (event) => {
+    console.log(event.target.value)
+  }
+
+  var onGeneChange2 = (event) => {
+    console.log(event.target.dataset, event.target.value)
+  }
+
   var onAdd = (event) => {
     if (event.target.value != "empty") {
       initList[event.target.value] = 0
@@ -1925,6 +1964,7 @@ function App() {
 
   useEffect(() => {
 
+    genomeEditor.current.hidden = true
     infoPanel.current.hidden = true
     cellInfoPanel.current.hidden = true
     controlTable.current.hidden = true
@@ -1940,7 +1980,7 @@ function App() {
   }, [])
 
   return (
-    <div>
+    <div> 
       <div style={appStyle}>
         {num.map((i) => (
           <div key={i} className="d-flex justify-content-center">
@@ -2108,6 +2148,37 @@ function App() {
             </td>}
           </tr>
           </tbody>
+      </table>
+      <table tabIndex={0} onKeyDown={onKeyDown} ref={genomeEditor} style={cellInfoPanelStyle} className="table">
+        <tbody>
+          {cellInfo != undefined && console.info(cellInfo.splice(-1, 1))}
+          {cellInfo != undefined && console.info(cellInfo.splice(-1, 1))}
+          {cellInfo != undefined && cellInfo.map((target, index) => (
+            <>
+              <tr className="thead-dark">
+                {Object.keys(target).map((key) => (
+                  <th scope="col">{key != "type" && key}</th>
+                ))}
+              </tr>
+              <tr className="table-light">
+                {genomeInfo[index] != undefined && Object.keys(genomeInfo[index]).map((key, j) => (
+                  <td scope="col">
+                    {genomeInfo[index][key] === "continous" && 
+                      <input type="text" data-i={index} data-j={j} class="form-control" onChange={onGeneChange2}></input>}
+                    {genomeInfo[index][key] !== "continous" &&
+                      <select onKeyDown={onKeyDown} className="form-control form-select" onChange={onGeneChange}>
+                        {Object.keys(genomeInfo[index][key]).map((item) => (
+                          <option key={item} value={[index, j, genomeInfo[index][key][item]]}>{genomeInfo[index][key][item]}</option>
+                        ))
+                        }</select>
+                    } 
+                    </td>
+                ))}
+                <td></td>
+              </tr>
+            </>
+          ))}
+        </tbody>
       </table>
       <table tabIndex={0} onKeyDown={onKeyDown} ref={controlTable} style={controlTableStyle} className="table">
         <thead className="thead-dark">
