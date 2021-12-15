@@ -499,6 +499,7 @@ var liveProperties = (color, geneSequence) => {
         "metabolismSignal": [],
         "geneSequence": geneSequence,
         "genome": genomeBuilder(geneSequence),
+        "genomeHelper": {}
     }
     return properties
 }

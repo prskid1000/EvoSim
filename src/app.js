@@ -1466,20 +1466,20 @@ function App() {
         }
         break
       }
+      case "Tab": {
+        if (genomeEditor.current.hidden == false) {
+          genomeEditor.current.hidden = true
+          writeMode = true
+        } else {
+          genomeEditor.current.hidden = false
+          writeMode = false
+        }
+        break
+      }
       case "i": {
         if (writeMode == false) {
           if (negate == false) {
             negate = true
-          }
-        }
-        break
-      }
-      case "g": {
-        if (writeMode == false) {
-          if(genomeEditor.current.hidden == false) {
-            genomeEditor.current.hidden = true
-          } else {
-            genomeEditor.current.hidden = false
           }
         }
         break
@@ -1948,11 +1948,11 @@ function App() {
   }
 
   var onGeneChange = (event) => {
-    console.log(event.target.value)
-  }
-
-  var onGeneChange2 = (event) => {
-    console.log(event.target.dataset, event.target.value)
+    if (objectList[currentObjectId] != undefined) {
+      var key = event.target.dataset.i + "-" + event.target.dataset.j
+      objectList[currentObjectId].genomeHelper[key] = event.target.value
+      console.log(objectList[currentObjectId].genomeHelper)
+    }
   }
 
   var onAdd = (event) => {
@@ -2164,11 +2164,12 @@ function App() {
                 {genomeInfo[index] != undefined && Object.keys(genomeInfo[index]).map((key, j) => (
                   <td scope="col">
                     {genomeInfo[index][key] === "continous" && 
-                      <input type="text" data-i={index} data-j={j} class="form-control" onChange={onGeneChange2}></input>}
+                      <input type="text" data-i={index} data-j={j} class="form-control" onChange={onGeneChange}></input>}
                     {genomeInfo[index][key] !== "continous" &&
-                      <select onKeyDown={onKeyDown} className="form-control form-select" onChange={onGeneChange}>
+                      <select onKeyDown={onKeyDown} className="form-control form-select" data-i={index} data-j={j} onChange={onGeneChange}>
+                        <option value="Default" selected>Default</option>
                         {Object.keys(genomeInfo[index][key]).map((item) => (
-                          <option key={item} value={[index, j, genomeInfo[index][key][item]]}>{genomeInfo[index][key][item]}</option>
+                          <option value={genomeInfo[index][key][item]}>{genomeInfo[index][key][item]}</option>
                         ))
                         }</select>
                     } 
