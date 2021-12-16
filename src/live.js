@@ -68,7 +68,7 @@ var genomeSchema = {
           }
           val = Math.floor((val / 4.0) * parseInt("fff", 16))
           var res = parseInt(val).toString(16)
-          while (res.length < 2) res = "0" + res
+          while (res.length < 3) res = "0" + res
           return res
         }
       }
@@ -109,7 +109,7 @@ var genomeSchema = {
         },
         revContinuous: (val) => {
           var res = parseInt(val).toString(16)
-          while (res.length < 2) res = "0" + res
+          while (res.length < 1) res = "0" + res
           return res
         }
       }
@@ -148,7 +148,7 @@ var genomeSchema = {
         },
         revContinuous: (val) => {
           var res = parseInt(val).toString(16)
-          while (res.length < 2) res = "0" + res
+          while (res.length < 1) res = "0" + res
           return res
         }
       }
@@ -191,7 +191,7 @@ var genomeSchema = {
         },
         revContinuous: (val) => {
           var res = parseInt(val).toString(16)
-          while (res.length < 2) res = "0" + res
+          while (res.length < 1) res = "0" + res
           return res
         }
       }
@@ -254,7 +254,7 @@ var genomeSchema = {
         },
         revContinuous: (val) => {
           var res = parseInt(val).toString(16)
-          while(res.length < 2) res = "0" + res
+          while(res.length < 1) res = "0" + res
           return res
         }
       }
