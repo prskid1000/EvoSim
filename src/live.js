@@ -61,6 +61,15 @@ var genomeSchema = {
           var res = (4.0 / parseInt("fff", 16)) * parseInt(seq, 16)
           if (res > 2) res = res - 4.0
           return res
+        },
+        revContinuous: (val) => {
+          if(val < 0) {
+            val += 4.0
+          }
+          val = Math.floor((val / 4.0) * parseInt("fff", 16))
+          var res = parseInt(val).toString(16)
+          while (res.length < 2) res = "0" + res
+          return res
         }
       }
     ]
@@ -97,6 +106,11 @@ var genomeSchema = {
         description: "threshold",
         continuous: (seq) => {
           return parseInt(seq, 16) % 8
+        },
+        revContinuous: (val) => {
+          var res = parseInt(val).toString(16)
+          while (res.length < 2) res = "0" + res
+          return res
         }
       }
 
@@ -131,6 +145,11 @@ var genomeSchema = {
         description: "threshold",
         continuous: (seq) => {
           return parseInt(seq, 16) % 8
+        },
+        revContinuous: (val) => {
+          var res = parseInt(val).toString(16)
+          while (res.length < 2) res = "0" + res
+          return res
         }
       }
 
@@ -169,6 +188,11 @@ var genomeSchema = {
         description: "threshold",
         continuous: (seq) => {
           return parseInt(seq, 16) % 8
+        },
+        revContinuous: (val) => {
+          var res = parseInt(val).toString(16)
+          while (res.length < 2) res = "0" + res
+          return res
         }
       }
 
@@ -227,6 +251,11 @@ var genomeSchema = {
         description: "senseArea",
         continuous: (seq) => {
           return parseInt(seq, 16)
+        },
+        revContinuous: (val) => {
+          var res = parseInt(val).toString(16)
+          while(res.length < 2) res = "0" + res
+          return res
         }
       }
     ]
@@ -465,16 +494,73 @@ var genomeHelperB = () => {
   var reverseGenome = {}
   Object.keys(genomeSchema).map((key) => {
     var codonShema = genomeSchema[key].codonShema
-    console.log(codonShema)
     for (let i = 0; i < codonShema.length; i++) {
       if (codonShema[i].decoder == "discrete") {
         Object.keys(codonShema[i].discrete).map((subkey) => {
-          reverseGenome[codonShema[i].discrete[subkey]] = subkey
+          reverseGenome[genomeSchema[key].type + "." + codonShema[i].description + "." + codonShema[i].discrete[subkey]] = subkey
         })
+      } else {
+        reverseGenome[genomeSchema[key].type + "." + codonShema[i].description] = codonShema[i].revContinuous
       }
     }
   })
   return reverseGenome
+}
+
+var genomeHelperC = (genome, changeList) => {
+  var segment = []
+  while (genome.length) {
+    Object.keys(genomeSchema).map((key) => {
+      if (key == genome.substring(0, key.length)) {
+        var codonShema = genomeSchema[key].codonShema
+        var binaryGene = genome.substring(1, genomeSchema[key].geneLength + 1)
+        var subsegment = []
+        for (let i = 0; i < codonShema.length; i++) {
+          var seq = binaryGene.substring(0, codonShema[i].hexBitCount)
+          var mseq = ""
+          switch (codonShema[i].decoder) {
+            case "discrete": {
+              var value = Math.floor(Math.random() * codonShema[i].keyCount).toString(16)
+              while (value.length < codonShema[i].hexBitCount) value = "0" + value
+              mseq = value
+            } break
+
+            case "continuous": {
+              var maxValue = ""
+              for (let j = 0; j < codonShema[i].hexBitCount; j++) maxValue += "f"
+              var value = Math.floor(Math.random() * parseInt(maxValue, 16)).toString(16)
+              while (value.length < codonShema[i].hexBitCount) value = "0" + value
+              mseq = value
+            } break
+          }
+          subsegment.push({
+            "original": seq,
+          })
+          binaryGene = binaryGene.substring(codonShema[i].hexBitCount)
+        }
+        segment.push({
+          "genePrefix": key,
+          "subsegment": subsegment
+        })
+        genome = genome.substring(genomeSchema[key].geneLength)
+      }
+    })
+  }
+
+  var mutatedGenome = ""
+  for (let i = 0; i < segment.length; i++) {
+    mutatedGenome += segment[i].genePrefix
+    for (let j = 0; j < segment[i].subsegment.length; j++) {
+      var key = i.toString() + "-" + j.toString()
+      if (changeList[key] != undefined) {
+        mutatedGenome += changeList[key]
+      } else {
+        mutatedGenome += segment[i].subsegment[j].original
+      }
+
+    }
+  }
+  return mutatedGenome
 }
 
 var liveProperties = (color, geneSequence) => {
@@ -513,5 +599,6 @@ module.exports = {
   genomeBuilder: genomeBuilder,
   liveProperties: liveProperties,
   genomeHelperA: genomeHelperA,
+  genomeHelperC: genomeHelperC,
   genomeHelperB: genomeHelperB(),
 }

@@ -3,7 +3,7 @@ import { cellTypes, getProperties } from "./cellType";
 import { computeCircularColumn, computeCircularRow, moveCell } from "./cellUtility";
 import useWindowDimensions from "./customHooks";
 import { initGrid } from "./initGrid";
-import { genomeDecoder, genomeHelperA, genomeHelperB } from "./live";
+import { genomeDecoder, genomeHelperA, genomeHelperB, genomeHelperC } from "./live";
 import { processDOM } from "./processDOM";
 import { processGrid } from "./processGrid";
 import { selectNextGen } from "./selectNextGen";
@@ -15,7 +15,7 @@ var simulationSpeed = process.env.REACT_APP_SIMULATION_SPEED
 var runState = false
 
 var num = []
-for(let i = 0; i < computeNumber; i++) {
+for (let i = 0; i < computeNumber; i++) {
   num.push(i)
 }
 
@@ -49,7 +49,7 @@ function App() {
     "deathList": ["-1"]
   })
   var [stateOptions, setStateOptions] = useState({})
-  var [selectRadius, setSelectRadius] = useState({left: 0,right: 0,top: 0,bottom: 0})
+  var [selectRadius, setSelectRadius] = useState({ left: 0, right: 0, top: 0, bottom: 0 })
   var [cellInfo, setCellInfo] = useState()
   var [genomeInfo, setGenomeInfo] = useState()
   var controlTable = useRef()
@@ -257,7 +257,7 @@ function App() {
         }]
       }
       setStateOptions(JSON.parse(JSON.stringify(stateOptions)))
-     
+
     }
     reader.readAsText(event.target.files[0])
   }
@@ -743,7 +743,7 @@ function App() {
         simulate()
       }, 60000 / simulationSpeed);
     }
-   
+
   }
 
   var handleUp = () => {
@@ -757,16 +757,16 @@ function App() {
         moveCell(grid, objectList, currentObjectId, futureKey)
         currentObjectId = futureKey
         processDOM(grid, objectList, statistic, graphStatistic)
-       
-      }break
+
+      } break
       case "selectRadius": {
-       if(negate == false) {
-         selectRadius.top = selectRadius.top + 1 <= Math.floor(computeNumber / 2) ? selectRadius.top + 1 : Math.floor(computeNumber / 2)
-       } else {
-         selectRadius.top = selectRadius.top - 1 >= 0 ? selectRadius.top - 1 : 0
-       }
+        if (negate == false) {
+          selectRadius.top = selectRadius.top + 1 <= Math.floor(computeNumber / 2) ? selectRadius.top + 1 : Math.floor(computeNumber / 2)
+        } else {
+          selectRadius.top = selectRadius.top - 1 >= 0 ? selectRadius.top - 1 : 0
+        }
         setSelectRadius(JSON.parse(JSON.stringify(selectRadius)))
-      }break
+      } break
       default: {
         var rowStart = computeCircularRow((Math.floor(parseInt(currentKey) / computeNumber)) * computeNumber - computeNumber)
         var rowEnd = rowStart + computeNumber - 1
@@ -931,7 +931,7 @@ function App() {
         moveCell(grid, objectList, currentObjectId, futureKey)
         currentObjectId = futureKey
         processDOM(grid, objectList, statistic, graphStatistic)
-       
+
       } break
       case "selectRadius": {
         if (negate == false) {
@@ -1094,7 +1094,7 @@ function App() {
   }
 
   var handleLeft = () => {
-    
+
     switch (currentProperty) {
       case "move": {
         if (currentObjectId == undefined || currentObjectId == "-1" || objectList[currentObjectId] == undefined) return
@@ -1105,7 +1105,7 @@ function App() {
         moveCell(grid, objectList, currentObjectId, futureKey)
         currentObjectId = futureKey
         processDOM(grid, objectList, statistic, graphStatistic)
-       
+
       } break
       case "selectRadius": {
         if (negate == false) {
@@ -1279,7 +1279,7 @@ function App() {
         moveCell(grid, objectList, currentObjectId, futureKey)
         currentObjectId = futureKey
         processDOM(grid, objectList, statistic, graphStatistic)
-       
+
       } break
       case "selectRadius": {
         if (negate == false) {
@@ -1289,7 +1289,7 @@ function App() {
         }
         setSelectRadius(JSON.parse(JSON.stringify(selectRadius)))
       } break
-      default:{
+      default: {
         var rowStart = computeCircularRow((Math.floor(parseInt(currentKey) / computeNumber)) * computeNumber)
         var rowEnd = rowStart + computeNumber - 1
         var column = rowStart + parseInt(currentKey) % computeNumber + 1
@@ -1443,7 +1443,7 @@ function App() {
 
   var onKeyDown = (event) => {
 
-    switch(event.key) {
+    switch (event.key) {
       case "+": {
         console.log("hi")
         if (genomePanel.current.hidden == false) {
@@ -1467,11 +1467,13 @@ function App() {
         break
       }
       case "Tab": {
-        if (genomeEditor.current.hidden == false) {
-          genomeEditor.current.hidden = true
+        if (genomeEditor.current.hidden == true) {
+          genomeEditor.current.hidden = false
+          objectList[currentObjectId].genomeHelper = {}
           writeMode = true
         } else {
-          genomeEditor.current.hidden = false
+          objectList[currentObjectId].genome = genomeHelperC(objectList[currentObjectId].genome, objectList[currentObjectId].genomeHelper)
+          genomeEditor.current.hidden = true
           writeMode = false
         }
         break
@@ -1485,7 +1487,7 @@ function App() {
         break
       }
       case "0": {
-        if(writeMode == false) {
+        if (writeMode == false) {
           if (controlTable.current.hidden == true) {
             controlTable.current.hidden = false
           } else {
@@ -1520,7 +1522,7 @@ function App() {
         break
       }
       case "4": {
-        if(writeMode == false) {
+        if (writeMode == false) {
           if (cellTypePanel.current.hidden == true) {
             cellTypePanel.current.hidden = false
             selectTarget = currentKey
@@ -1531,7 +1533,7 @@ function App() {
         break
       }
       case "5": {
-        if(writeMode == false) {
+        if (writeMode == false) {
           if (grid[currentKey].type != "empty") {
             grid[currentKey].color = "black"
             statistic[grid[currentKey].type]--
@@ -1544,7 +1546,7 @@ function App() {
             currentObjectId = undefined
           }
         }
-         break
+        break
       }
       case "6": {
         if (writeMode == false) {
@@ -1565,7 +1567,7 @@ function App() {
           }
         }
         break
-      } 
+      }
       case "n": {
         if (writeMode == false) {
           if (infoPanel.current.hidden == false) {
@@ -1587,7 +1589,7 @@ function App() {
         break
       }
       case "u": {
-        if(writeMode == false) {
+        if (writeMode == false) {
           runState = false
           sceneUpload()
         }
@@ -1626,7 +1628,7 @@ function App() {
   }
 
   var onKeyUp = (event) => {
-    switch(event.key) {
+    switch (event.key) {
       case "6": {
         currentProperty = null
         break
@@ -1784,7 +1786,7 @@ function App() {
     if (objectList[event.target.id] != undefined) {
       currentObjectId = event.target.id
       if (grid[event.target.id].type == "live") {
-      
+
         var info = genomeDecoder(objectList[event.target.id].genome)
         info.push({
           "distTravelUp": objectList[event.target.id].distTravelUp,
@@ -1899,7 +1901,7 @@ function App() {
         setCellInfo(JSON.parse(JSON.stringify(info)))
       } else {
         var info = []
-        info.push({ "type":objectList[event.target.id].type})
+        info.push({ "type": objectList[event.target.id].type })
         info.push({ "proton": objectList[event.target.id].proton })
         info.push({ "neutron": objectList[event.target.id].neutron })
         info.push({ "electron": objectList[event.target.id].electron })
@@ -1908,7 +1910,7 @@ function App() {
         setCellInfo(JSON.parse(JSON.stringify(info)))
       }
     }
-    
+
   }
 
   var onMouseLeave = (event) => {
@@ -1948,10 +1950,16 @@ function App() {
   }
 
   var onGeneChange = (event) => {
-    if (objectList[currentObjectId] != undefined) {
+    if (objectList[currentObjectId] != undefined && event.target.value != "Default") {
       var key = event.target.dataset.i + "-" + event.target.dataset.j
-      objectList[currentObjectId].genomeHelper[key] = event.target.value
-      console.log(objectList[currentObjectId].genomeHelper)
+      var row = cellInfo[event.target.dataset.i]
+      var column = Object.keys(row)[event.target.dataset.j]
+      var type = row.type
+      if (genomeHelperB[type + "." + column + "." + event.target.value] == undefined){
+        objectList[currentObjectId].genomeHelper[key] = genomeHelperB[type + "." + column](event.target.value)
+      } else {
+        objectList[currentObjectId].genomeHelper[key] = genomeHelperB[type + "." + column + "." + event.target.value]
+      }
     }
   }
 
@@ -1963,7 +1971,6 @@ function App() {
   }
 
   useEffect(() => {
-
     genomeEditor.current.hidden = true
     infoPanel.current.hidden = true
     cellInfoPanel.current.hidden = true
@@ -1980,7 +1987,7 @@ function App() {
   }, [])
 
   return (
-    <div> 
+    <div>
       <div style={appStyle}>
         {num.map((i) => (
           <div key={i} className="d-flex justify-content-center">
@@ -2019,14 +2026,14 @@ function App() {
           </tr>
         </thead>
         <tbody className="table-light">
-        {stateStatistic && Object.keys(stateStatistic).map((key) => (
-          <>{key != "deathList" && key != "death" && key != "replication" && key != "mutation" && key != "metabolism" &&
-            <tr key={key}>
-              <td>{key}</td>
-              <td>{stateStatistic[key]}</td>
-            </tr>
-          }</>
-        ))}
+          {stateStatistic && Object.keys(stateStatistic).map((key) => (
+            <>{key != "deathList" && key != "death" && key != "replication" && key != "mutation" && key != "metabolism" &&
+              <tr key={key}>
+                <td>{key}</td>
+                <td>{stateStatistic[key]}</td>
+              </tr>
+            }</>
+          ))}
           <tr>
             {stateOptions.mutation != undefined && <td colSpan="2">
               <CanvasJSChart options={stateOptions.mutation}
@@ -2098,7 +2105,7 @@ function App() {
                 ))}
               </tr>
             </>
-           ))}
+          ))}
           <tr>
             {options.mutationSignal != undefined && cellInfo.charge == undefined && <td colSpan="4">
               <CanvasJSChart options={options.mutationSignal}
@@ -2147,7 +2154,7 @@ function App() {
               />
             </td>}
           </tr>
-          </tbody>
+        </tbody>
       </table>
       <table tabIndex={0} onKeyDown={onKeyDown} ref={genomeEditor} style={cellInfoPanelStyle} className="table">
         <tbody>
@@ -2163,7 +2170,7 @@ function App() {
               <tr className="table-light">
                 {genomeInfo[index] != undefined && Object.keys(genomeInfo[index]).map((key, j) => (
                   <td scope="col">
-                    {genomeInfo[index][key] === "continous" && 
+                    {genomeInfo[index][key] === "continous" &&
                       <input type="text" data-i={index} data-j={j} class="form-control" onChange={onGeneChange}></input>}
                     {genomeInfo[index][key] !== "continous" &&
                       <select onKeyDown={onKeyDown} className="form-control form-select" data-i={index} data-j={j} onChange={onGeneChange}>
@@ -2172,8 +2179,8 @@ function App() {
                           <option value={genomeInfo[index][key][item]}>{genomeInfo[index][key][item]}</option>
                         ))
                         }</select>
-                    } 
-                    </td>
+                    }
+                  </td>
                 ))}
                 <td></td>
               </tr>
