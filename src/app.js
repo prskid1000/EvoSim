@@ -2269,6 +2269,10 @@ function App() {
             <td>7(Hold) + i(Hold) + ArrowRight</td>
           </tr>
           <tr>
+            <td>Genome Editor (Individual) </td>
+            <td>Tab(Toggle)</td>
+          </tr>
+          <tr>
             <td>Global Genome Sequence Editor (Init/NextGen) </td>
             <td>+(Toggle)</td>
           </tr>
