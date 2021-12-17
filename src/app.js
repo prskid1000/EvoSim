@@ -2289,6 +2289,14 @@ function App() {
             <td>n(Toggle)</td>
           </tr>
           <tr>
+            <td>Upload Current Cell Culture </td>
+            <td>u</td>
+          </tr>
+          <tr>
+            <td>Download Current Cell Culture </td>
+            <td>d</td>
+          </tr>
+          <tr>
             <td>Move Cursor(Red) Up </td>
             <td>ArrowUp</td>
           </tr>
